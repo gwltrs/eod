@@ -15,4 +15,3 @@ printCatFact = do
 
 main ∷ Effect Unit
 main = launchAff_ printCatFact
---main = getAPIKey >>= log

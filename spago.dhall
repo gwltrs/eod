@@ -19,13 +19,16 @@ to generate this file without the comments in this block.
   , "either"
   , "exceptions"
   , "fetch"
+  , "foldable-traversable"
   , "foreign-object"
   , "free"
   , "maybe"
   , "node-process"
   , "partial"
   , "prelude"
+  , "strings"
   , "test-unit"
+  , "unicode"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

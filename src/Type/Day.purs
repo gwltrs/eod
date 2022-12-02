@@ -1,7 +1,5 @@
 module Type.Day where
 
-import Prelude
-
 type Day = { date :: String, open :: Number, high :: Number, low :: Number, close :: Number, volume :: Number }
 
 day :: String -> Number -> Number -> Number -> Number -> Number -> Day

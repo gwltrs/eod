@@ -23,6 +23,7 @@ to generate this file without the comments in this block.
   , "free"
   , "maybe"
   , "node-process"
+  , "partial"
   , "prelude"
   , "test-unit"
   ]

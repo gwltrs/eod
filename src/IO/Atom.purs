@@ -8,18 +8,16 @@ import Effect.Aff (Aff)
 import Effect.Exception (throw)
 import Fetch (fetch)
 import Node.Process (lookupEnv)
+import RailRoad (forceJust)
 import Type.Alias (URL)
 
 getURL :: URL -> Aff String
-getURL url = do
-  res <- fetch url {}
-  res.text
+getURL url = fetch url {} >>= (\r -> r.text)
 
 getAPIKey :: Effect String
-getAPIKey = do
-  keyMaybe <- lookupEnv envVarName
-  case keyMaybe of
-    Just key -> pure key
-    Nothing -> throw ("Failed to get env var: " <> envVarName)
-  where 
+getAPIKey = 
+  let 
     envVarName = "EODHD_API_KEY"
+    err = "Didn't find environment variable: " <> envVarName
+  in 
+    lookupEnv envVarName <#> forceJust err

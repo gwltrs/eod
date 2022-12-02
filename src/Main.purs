@@ -1,16 +1,18 @@
 module Main where
 
 import Prelude
+
 import Effect (Effect)
-import Effect.Console (log)
-import Fetch (fetch)
 import Effect.Aff (Aff, launchAff_)
 import Effect.Class (liftEffect)
+import Effect.Console (log)
+import IO.Atom (getAPIKey, getURL)
 
+printCatFact :: Aff Unit
 printCatFact = do
-  res <- fetch "https://catfact.ninja/fact" {}
-  resText <- res.text
-  liftEffect (log resText)
+  
+  res <- getURL "https://catfact.ninja/fact"
+  liftEffect (log res)
 
-main = do
-  launchAff_ printCatFact
+main ∷ Effect Unit
+main = launchAff_ printCatFact

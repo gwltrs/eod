@@ -8,7 +8,7 @@ import Effect.Aff (Aff)
 import Effect.Exception (throw)
 import Fetch (fetch)
 import Node.Process (lookupEnv)
-import RailRoad (forceJust)
+import Railroad (forceJust)
 import Type.Alias (URL)
 
 getURL :: URL -> Aff String

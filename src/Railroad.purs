@@ -1,4 +1,4 @@
-module RailRoad where
+module Railroad where
 
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))

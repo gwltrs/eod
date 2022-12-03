@@ -1,7 +1,10 @@
 module Railroad where
 
+import Prelude
+
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), isJust)
+import Data.Array (all)
 import Partial.Unsafe (unsafeCrashWith)
 
 rightToMaybe :: forall a b. Either a b -> Maybe b
@@ -12,6 +15,17 @@ leftToMaybe :: forall a b. Either a b -> Maybe a
 leftToMaybe (Left a) = Just a
 leftToMaybe (Right _) = Nothing
 
-forceJust :: forall a. String -> Maybe a -> a
-forceJust _ (Just a) = a
-forceJust err (Nothing) = unsafeCrashWith err
+fromJust_ :: forall a. String -> Maybe a -> a
+fromJust_ _ (Just a) = a
+fromJust_ err (Nothing) = unsafeCrashWith err
+
+fromJust :: forall a. Maybe a -> a
+fromJust = fromJust_ "Expecting a Just but found Nothing"
+
+filterMapAll :: forall a b. (a -> Maybe b) -> Array a -> Maybe (Array b)
+filterMapAll f arr = 
+  let mapped = arr <#> f
+  in if all isJust mapped then Just (mapped <#> fromJust) else Nothing
+
+allOrNothing :: forall a. Array (Maybe a) -> Maybe (Array a)
+allOrNothing = filterMapAll identity

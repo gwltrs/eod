@@ -6,11 +6,14 @@ import Control.Monad.Free (Free)
 import Data.Maybe (Maybe(..))
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
-import Type.BulkDay (bulkDay, isOptimalBulkDay)
-import Test.Value (aaplBulkDay)
+import Test.Value (aaplAmznBulkDays, aaplAmznBulkDaysJSON, aaplBulkDay)
+import Type.BulkDay (bulkDaysFromJSON, isOptimalBulkDay)
 
 bulkDayTests :: Free TestF Unit
 bulkDayTests = suite "BulkDay" do
+  test "bulkDaysFromJSON" do
+    Assert.equal Nothing (bulkDaysFromJSON "")
+    Assert.equal (Just aaplAmznBulkDays) (bulkDaysFromJSON aaplAmznBulkDaysJSON)
   -- test "bulkDayFromJSON" do
   --   Assert.equal Nothing (parseDay "")
   --   Assert.equal 
@@ -24,21 +27,11 @@ bulkDayTests = suite "BulkDay" do
   --     (Just { code: "AAPL", date: "2022-12-01", open: 148.25, high: 149.125, low: 146.5, close: 148.0, volume: 68230295.0 })
   --     (parseDayWithCode """{"code":"AAPL","exchange_short_name":"US","date":"2022-12-01","open":148.25,"high":149.125,"low":146.50,"close":148,"adjusted_close":148.77,"volume":68230295}""")
   test "isOptimalBulkDay" do
-    Assert.equal 
-      true
-      (isOptimalBulkDay aaplBulkDay)
-    Assert.equal 
-      false
-      (isOptimalBulkDay aaplBulkDay { code = "AAEKX" })
-    Assert.equal 
-      false
-      (isOptimalBulkDay aaplBulkDay { code = "AKO-A" })
-    Assert.equal 
-      false
-      (isOptimalBulkDay aaplBulkDay { close = 10.0, volume = 10.0 })
-    Assert.equal 
-      false
-      (isOptimalBulkDay aaplBulkDay { code = "LVOPX", volume = 0.0 })
+    Assert.equal true (isOptimalBulkDay aaplBulkDay)
+    Assert.equal false (isOptimalBulkDay aaplBulkDay { code = "AAEKX" })
+    Assert.equal false (isOptimalBulkDay aaplBulkDay { code = "AKO-A" })
+    Assert.equal false (isOptimalBulkDay aaplBulkDay { close = 10.0, volume = 10.0 })
+    Assert.equal false (isOptimalBulkDay aaplBulkDay { code = "LVOPX", volume = 0.0 })
 
 
 

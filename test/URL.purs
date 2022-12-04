@@ -8,7 +8,7 @@ import Data.Enum (toEnum)
 import Railroad (fromJust)
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
-import URL (bulkURL)
+import URL (bulkURL, eodURL, liveURL)
 
 urlTests :: Free TestF Unit
 urlTests = suite "URL" do
@@ -17,25 +17,25 @@ urlTests = suite "URL" do
       "https://eodhistoricaldata.com/api/eod-bulk-last-day/US?api_token=supersecret&fmt=json&date=2003-01-02" 
       (bulkURL "supersecret" dateJanSecond2003)
     Assert.equal 
-      "https://eodhistoricaldata.com/api/eod-bulk-last-day/US?api_token=knockknock&fmt=json&date=2006-04-05" 
-      (bulkURL "knockknock" dateAprilFifth2006)
+      "https://eodhistoricaldata.com/api/eod-bulk-last-day/US?api_token=knockknock&fmt=json&date=2006-12-15" 
+      (bulkURL "knockknock" dateDecemberFifteenth2006)
   test "eodURL" do
     Assert.equal 
-      "" 
-      "asdf"
+      "https://eodhistoricaldata.com/api/eod/AAPL.US?api_token=supersecret&fmt=json&from=2003-01-02" 
+      (eodURL "supersecret" dateJanSecond2003 "AAPL")
     Assert.equal 
-      "" 
-      "asdf"
+      "https://eodhistoricaldata.com/api/eod/AMZN.US?api_token=knockknock&fmt=json&from=2006-12-15" 
+      (eodURL "knockknock" dateDecemberFifteenth2006 "AMZN")
   test "liveURL" do
     Assert.equal 
-      "" 
-      "asdf"
+      "https://eodhistoricaldata.com/api/real-time/AAPL.US?api_token=supersecret&fmt=json"
+      (liveURL "supersecret" "AAPL")
     Assert.equal 
-      "" 
-      "asdf"
+      "https://eodhistoricaldata.com/api/real-time/AMZN.US?api_token=knockknock&fmt=json" 
+      (liveURL "knockknock" "AMZN")
 
 dateJanSecond2003 :: Date
-dateJanSecond2003 = fromJust $ exactDate (fromJust $ toEnum 2004) January (fromJust $ toEnum 2)
+dateJanSecond2003 = fromJust $ exactDate (fromJust $ toEnum 2003) January (fromJust $ toEnum 2)
 
-dateAprilFifth2006 :: Date
-dateAprilFifth2006 = fromJust $ exactDate (fromJust $ toEnum 2006) April (fromJust $ toEnum 5)
+dateDecemberFifteenth2006 :: Date
+dateDecemberFifteenth2006 = fromJust $ exactDate (fromJust $ toEnum 2006) December (fromJust $ toEnum 15)

@@ -22,4 +22,4 @@ liveDayFromJSON json =
     l = obj >>= lookup "low" >>= toNumber
     c = obj >>= lookup "close" >>= toNumber
     v = obj >>= lookup "volume" >>= toNumber
-  in liveDay <$>  o <*> h <*> l <*> c <*> v
+  in liveDay <$> o <*> h <*> l <*> c <*> v

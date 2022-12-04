@@ -1,4 +1,4 @@
-module Type.EODDay where
+module Type.EODDay (EODDay, eodDay, eodDaysFromJSON, toLiveDay) where
 
 import Prelude
 
@@ -24,7 +24,8 @@ eodDayFromJSON json =
     l = obj >>= lookup "low" >>= toNumber
     c = obj >>= lookup "close" >>= toNumber
     v = obj >>= lookup "volume" >>= toNumber
-  in eodDay <$> d <*> o <*> h <*> l <*> c <*> v
+  in 
+    eodDay <$> d <*> o <*> h <*> l <*> c <*> v
 
 eodDaysFromJSON :: String -> Maybe (Array EODDay)
 eodDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= filterMapAll eodDayFromJSON

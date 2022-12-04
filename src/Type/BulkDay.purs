@@ -1,4 +1,4 @@
-module Type.BulkDay where
+module Type.BulkDay (BulkDay, bulkDay, bulkDaysFromJSON, isOptimalBulkDay, toEODDay) where
 
 import Prelude
 
@@ -27,7 +27,8 @@ bulkDayFromJSON json =
     l = obj >>= lookup "low" >>= toNumber
     cl = obj >>= lookup "close" >>= toNumber
     v = obj >>= lookup "volume" >>= toNumber
-  in bulkDay <$> co <*> d <*> o <*> h <*> l <*> cl <*> v
+  in 
+    bulkDay <$> co <*> d <*> o <*> h <*> l <*> cl <*> v
 
 bulkDaysFromJSON :: String -> Maybe (Array BulkDay)
 bulkDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= filterMapAll bulkDayFromJSON

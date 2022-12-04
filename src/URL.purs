@@ -2,7 +2,7 @@ module URL (bulkURL, eodURL, liveURL) where
 
 import Prelude
 
-import Data.Date (Date(..), year, month, day)
+import Data.Date (Date, year, month, day)
 import Data.Enum (fromEnum)
 import Data.String (length)
 import Type.Alias (APIKey, Sym, URL)
@@ -26,4 +26,5 @@ dateStr date =
     y = year date # fromEnum # show # padZeros 4
     m = month date # fromEnum # show # padZeros 2
     d = day date # fromEnum # show # padZeros 2
-  in y <> "-" <> m <> "-" <> d
+  in 
+    y <> "-" <> m <> "-" <> d

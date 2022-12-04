@@ -3,7 +3,7 @@ module Test.URL where
 import Prelude
 
 import Control.Monad.Free (Free)
-import Data.Date (Date(..), Month(..), Year(..), exactDate)
+import Data.Date (Date, Month(..), exactDate)
 import Data.Enum (toEnum)
 import Railroad (fromJust)
 import Test.Unit (suite, test, TestF)

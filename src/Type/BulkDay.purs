@@ -6,8 +6,9 @@ import Data.Argonaut.Core (Json, toArray, toNumber, toObject, toString)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Maybe (Maybe)
 import Data.String (length)
+import Data.Traversable (traverse)
 import Foreign.Object (lookup)
-import Railroad (filterMapAll, rightToMaybe)
+import Railroad (rightToMaybe)
 import Type.EODDay (EODDay)
 import Utils (allTrue, isAlphaStr)
 
@@ -31,7 +32,7 @@ bulkDayFromJSON json =
     bulkDay <$> co <*> d <*> o <*> h <*> l <*> cl <*> v
 
 bulkDaysFromJSON :: String -> Maybe (Array BulkDay)
-bulkDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= filterMapAll bulkDayFromJSON
+bulkDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= traverse bulkDayFromJSON
 
 isOptimalBulkDay :: BulkDay -> Boolean
 isOptimalBulkDay day = 

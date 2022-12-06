@@ -8,6 +8,7 @@ import Control.Monad.Except (ExceptT(..), runExceptT)
 import Data.Array (all)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), isJust)
+import Data.Traversable (sequence)
 import Effect (Effect)
 import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
@@ -28,14 +29,6 @@ fromJust_ err (Nothing) = unsafeCrashWith err
 
 fromJust :: forall a. Maybe a -> a
 fromJust = fromJust_ "Expecting a Just but found Nothing"
-
-filterMapAll :: forall a b. (a -> Maybe b) -> Array a -> Maybe (Array b)
-filterMapAll f arr = 
-  let mapped = arr <#> f
-  in if all isJust mapped then Just (mapped <#> fromJust) else Nothing
-
-allOrNothing :: forall a. Array (Maybe a) -> Maybe (Array a)
-allOrNothing = filterMapAll identity
 
 tryEffect :: forall a. Effect a -> EffectE a
 tryEffect = try >>> ExceptT

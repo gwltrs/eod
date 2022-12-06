@@ -6,7 +6,7 @@ import Data.Argonaut.Core (Json, toArray, toNumber, toObject, toString)
 import Data.Argonaut.Parser (jsonParser)
 import Data.Maybe (Maybe(..))
 import Foreign.Object (lookup)
-import Railroad (filterMapAll, rightToMaybe)
+import Railroad (rightToMaybe)
 
 type LiveDay = { open :: Number, high :: Number, low :: Number, close :: Number, volume :: Number }
 

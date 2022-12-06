@@ -4,6 +4,7 @@ import Prelude
 
 import Control.Apply (applySecond)
 import Control.Monad.Except (ExceptT(..), runExceptT)
+import Data.Array (length)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.Either (Either(..))
@@ -12,7 +13,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, Error, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
-import IO (getLiveDay)
+import IO (getBulkDays, getEODDays, getLiveDay)
 import Railroad (fromJust, fuse, launchAffE)
 import Type.Alias (AffE)
 import Utils (date)
@@ -37,9 +38,7 @@ logAffE logErr logA aff = runExceptT aff >>= (\eith ->
       Nothing -> pure $ Left l
     Right r -> case logA r of
       Just a -> (liftEffect $ log a) `applySecond` (pure $ Right r)
-      Nothing -> pure $ Right r
-
-  ) # ExceptT
+      Nothing -> pure $ Right r) # ExceptT
 
 main ∷ Effect Unit
-main = getLiveDay "ATOS" # logAffE (show >>> Just) (show >>> Just) # launchAffE
+main = getBulkDays (fromJust $ date 2022 12 5) # logAffE (show >>> Just) (length >>> show >>> Just) # launchAffE

@@ -1,5 +1,12 @@
 module Type.Alias where
 
+import Control.Monad.Except (ExceptT)
+import Effect (Effect)
+import Effect.Aff (Aff)
+import Effect.Exception (Error)
+
+type AffE a = ExceptT Error Aff a
 type APIKey = String
+type EffectE a = ExceptT Error Effect a
 type Sym = String
 type URL = String

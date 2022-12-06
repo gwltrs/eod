@@ -2,20 +2,21 @@ module IO.Atom where
 
 import Prelude
 
+import Control.Monad.Except (ExceptT(..))
 import Effect (Effect)
-import Effect.Aff (Aff)
+import Effect.Aff (Aff, attempt, error)
 import Fetch (fetch)
 import Node.Process (lookupEnv)
-import Railroad (fromJust_)
-import Type.Alias (URL)
+import Railroad (fromJust_, tryEffect, toRight)
+import Type.Alias (AffE, URL, EffectE)
 
-getURL :: URL -> Aff String
-getURL url = fetch url {} >>= (\r -> r.text)
+getURL :: URL -> AffE String
+getURL url = ExceptT $ attempt (fetch url {} >>= (\r -> r.text))
 
-getAPIKey :: Effect String
+getAPIKey :: EffectE String
 getAPIKey = 
   let 
     envVarName = "EODHD_API_KEY"
-    err = "Didn't find environment variable: " <> envVarName
+    err = error ("Didn't find environment variable: " <> envVarName)
   in 
-    lookupEnv envVarName <#> fromJust_ err
+    lookupEnv envVarName <#> toRight err # ExceptT

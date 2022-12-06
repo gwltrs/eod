@@ -15,6 +15,7 @@ to generate this file without the comments in this block.
   [ "aff"
   , "argonaut-core"
   , "arrays"
+  , "bifunctors"
   , "console"
   , "datetime"
   , "effect"
@@ -33,6 +34,7 @@ to generate this file without the comments in this block.
   , "prelude"
   , "strings"
   , "test-unit"
+  , "transformers"
   , "unicode"
   ]
 , packages = ./packages.dhall

@@ -2,10 +2,17 @@ module Railroad where
 
 import Prelude
 
+import Control.Apply (applySecond)
+import Control.Monad.Error.Class (try)
+import Control.Monad.Except (ExceptT(..), runExceptT)
+import Data.Array (all)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), isJust)
-import Data.Array (all)
+import Effect (Effect)
+import Effect.Aff (Aff, attempt, launchAff_)
+import Effect.Class (liftEffect)
 import Partial.Unsafe (unsafeCrashWith)
+import Type.Alias (EffectE, AffE)
 
 rightToMaybe :: forall a b. Either a b -> Maybe b
 rightToMaybe (Left _) = Nothing
@@ -29,3 +36,23 @@ filterMapAll f arr =
 
 allOrNothing :: forall a. Array (Maybe a) -> Maybe (Array a)
 allOrNothing = filterMapAll identity
+
+tryEffect :: forall a. Effect a -> EffectE a
+tryEffect = try >>> ExceptT
+
+tryAff :: forall a. Aff a -> AffE a
+tryAff = attempt >>> ExceptT
+
+launchAffE :: forall a. AffE a -> Effect Unit
+launchAffE a = launchAff_ (runExceptT a `applySecond` pure unit)
+
+toRight :: forall e a. e -> Maybe a -> Either e a
+toRight e Nothing = Left e 
+toRight _ (Just a) = Right a
+
+liftEffectE :: forall a. EffectE a -> AffE a
+liftEffectE = runExceptT >>> liftEffect >>> ExceptT
+
+fuse :: forall a. Either a a -> a
+fuse (Left l) = l
+fuse (Right r) = r

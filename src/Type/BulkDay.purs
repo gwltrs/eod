@@ -18,18 +18,16 @@ bulkDay :: String -> String -> Number -> Number -> Number -> Number -> Number ->
 bulkDay = { code: _, date: _, open: _, high: _, low: _, close: _, volume: _ }
 
 bulkDayFromJSON :: Json -> Maybe BulkDay
-bulkDayFromJSON json = 
-  let 
-    obj = toObject json
-    co = obj >>= lookup "code" >>= toString
-    d = obj >>= lookup "date" >>= toString
-    o = obj >>= lookup "open" >>= toNumber
-    h = obj >>= lookup "high" >>= toNumber
-    l = obj >>= lookup "low" >>= toNumber
-    cl = obj >>= lookup "close" >>= toNumber
-    v = obj >>= lookup "volume" >>= toNumber
-  in 
-    bulkDay <$> co <*> d <*> o <*> h <*> l <*> cl <*> v
+bulkDayFromJSON json = do
+  obj <- toObject json
+  co <- lookup "code" obj >>= toString
+  d <- lookup "date" obj>>= toString
+  o <- lookup "open" obj>>= toNumber
+  h <- lookup "high" obj>>= toNumber
+  l <- lookup "low" obj>>= toNumber
+  cl <- lookup "close" obj>>= toNumber
+  v <- lookup "volume" obj>>= toNumber
+  pure $ bulkDay co d o h l cl v
 
 bulkDaysFromJSON :: String -> Maybe (Array BulkDay)
 bulkDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= traverse bulkDayFromJSON

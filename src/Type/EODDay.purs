@@ -16,17 +16,15 @@ eodDay :: String -> Number -> Number -> Number -> Number -> Number -> EODDay
 eodDay = { date: _, open: _, high: _, low: _, close: _, volume: _ }
 
 eodDayFromJSON :: Json -> Maybe EODDay
-eodDayFromJSON json = 
-  let 
-    obj = toObject json
-    d = obj >>= lookup "date" >>= toString
-    o = obj >>= lookup "open" >>= toNumber
-    h = obj >>= lookup "high" >>= toNumber
-    l = obj >>= lookup "low" >>= toNumber
-    c = obj >>= lookup "close" >>= toNumber
-    v = obj >>= lookup "volume" >>= toNumber
-  in 
-    eodDay <$> d <*> o <*> h <*> l <*> c <*> v
+eodDayFromJSON json = do
+  obj <- toObject json
+  d <- lookup "date" obj >>= toString
+  o <- lookup "open" obj >>= toNumber
+  h <- lookup "high" obj >>= toNumber
+  l <- lookup "low" obj >>= toNumber
+  c <- lookup "close" obj >>= toNumber
+  v <- lookup "volume" obj >>= toNumber
+  pure $ eodDay d o h l c v
 
 eodDaysFromJSON :: String -> Maybe (Array EODDay)
 eodDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= traverse eodDayFromJSON

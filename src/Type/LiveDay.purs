@@ -14,13 +14,11 @@ liveDay :: Number -> Number -> Number -> Number -> Number -> LiveDay
 liveDay = { open: _, high: _, low: _, close: _, volume: _ }
 
 liveDayFromJSON :: String -> Maybe LiveDay
-liveDayFromJSON json =
-  let 
-    obj = jsonParser json # rightToMaybe >>= toObject
-    o = obj >>= lookup "open" >>= toNumber
-    h = obj >>= lookup "high" >>= toNumber
-    l = obj >>= lookup "low" >>= toNumber
-    c = obj >>= lookup "close" >>= toNumber
-    v = obj >>= lookup "volume" >>= toNumber
-  in 
-    liveDay <$> o <*> h <*> l <*> c <*> v
+liveDayFromJSON json = do
+  obj <- jsonParser json # rightToMaybe >>= toObject
+  o <- lookup "open" obj >>= toNumber
+  h <- lookup "high" obj >>= toNumber
+  l <- lookup "low" obj >>= toNumber
+  c <- lookup "close" obj >>= toNumber
+  v <- lookup "volume" obj >>= toNumber
+  pure $ liveDay o h l c v

@@ -2,7 +2,7 @@ module Railroad where
 
 import Prelude
 
-import Control.Apply (applySecond)
+import Control.Apply ((*>))
 import Control.Monad.Error.Class (try)
 import Control.Monad.Except (ExceptT(..), runExceptT)
 import Data.Array (all)
@@ -37,7 +37,7 @@ tryAff :: forall a. Aff a -> AffE a
 tryAff = attempt >>> ExceptT
 
 launchAffE :: forall a. AffE a -> Effect Unit
-launchAffE a = launchAff_ (runExceptT a `applySecond` pure unit)
+launchAffE a = launchAff_ (runExceptT a *> pure unit)
 
 toRight :: forall e a. e -> Maybe a -> Either e a
 toRight e Nothing = Left e 

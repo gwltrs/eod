@@ -2,7 +2,7 @@ module Main where
 
 import Prelude
 
-import Control.Apply (applySecond)
+import Control.Apply ((*>))
 import Control.Monad.Except (ExceptT(..), runExceptT)
 import Data.Array (length)
 import Data.Bifunctor (bimap)
@@ -34,10 +34,10 @@ logAffE :: forall a. (Error -> Maybe String) -> (a -> Maybe String) -> AffE a ->
 logAffE logErr logA aff = runExceptT aff >>= (\eith ->
   case eith of
     Left l -> case logErr l of
-      Just e -> (liftEffect $ log e) `applySecond` (pure $ Left l)
+      Just e -> (liftEffect $ log e) *> (pure $ Left l)
       Nothing -> pure $ Left l
     Right r -> case logA r of
-      Just a -> (liftEffect $ log a) `applySecond` (pure $ Right r)
+      Just a -> (liftEffect $ log a) *> (pure $ Right r)
       Nothing -> pure $ Right r) # ExceptT
 
 main ∷ Effect Unit

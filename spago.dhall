@@ -35,6 +35,7 @@ to generate this file without the comments in this block.
   , "strings"
   , "test-unit"
   , "transformers"
+  , "tuples"
   , "unicode"
   ]
 , packages = ./packages.dhall

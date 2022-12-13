@@ -29,6 +29,8 @@ to generate this file without the comments in this block.
   , "foreign-object"
   , "free"
   , "maybe"
+  , "node-buffer"
+  , "node-fs-aff"
   , "node-process"
   , "partial"
   , "prelude"

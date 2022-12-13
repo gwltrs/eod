@@ -2,16 +2,18 @@ module IO where
 
 import Prelude
 
-import Control.Monad.Except (ExceptT, except)
+import Control.Monad.Except (ExceptT(..), except, runExceptT)
 import Data.Array (filter)
 import Data.Date (Date)
+import Data.Either (Either(..))
+import Data.Functor (voidLeft, voidRight)
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple)
 import Effect.Aff (Aff, error)
 import Effect.Class (liftEffect)
 import IO.Atom (getAPIKey, getURL)
 import Railroad (liftEffectE, toRight)
-import Type.Alias (AffE, Sym, AffE)
+import Type.Alias (AffE, Sym)
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
 import Type.EODDay (EODDay, eodDaysFromJSON)
 import Type.LiveDay (LiveDay, liveDayFromJSON)
@@ -35,11 +37,9 @@ getLiveDay sym = do
   res <- getURL (liveURL key sym)
   except $ toRight (error "Failed to parse live day JSON") $ liveDayFromJSON res
 
-memoizeAffE :: forall a b.  (a -> AffE (Maybe b)) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)
-memoizeAffE getCache setCache getData = (\a -> do
-  cache <- getCache a
-  case cache of 
-    Just c -> pure c
-    Nothing -> do
-      d <- getData a
-      setCache a d *> pure d)
+memoizeAffE :: forall a b.  (a -> AffE b) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)
+memoizeAffE getCache setCache getData = (\a -> 
+  runExceptT (getCache a) >>= (\e ->
+    case e of
+      Left _ -> getData a >>= (\d -> (setCache a d) *> (pure d)) # runExceptT
+      _ -> pure e ) # ExceptT )

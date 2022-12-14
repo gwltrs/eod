@@ -37,9 +37,9 @@ getLiveDay sym = do
   res <- getURL (liveURL key sym)
   except $ toRight (error "Failed to parse live day JSON") $ liveDayFromJSON res
 
-memoizeAffE :: forall a b.  (a -> AffE b) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)
-memoizeAffE getCache setCache getData = (\a -> 
+cacheAffE :: forall a b.  (a -> AffE b) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)
+cacheAffE getCache setCache getData = (\a -> 
   runExceptT (getCache a) >>= (\e ->
     case e of
       Left _ -> getData a >>= (\d -> (setCache a d) *> (pure d)) # runExceptT
-      _ -> pure e ) # ExceptT )
+      _ -> pure e ) # ExceptT)

@@ -5,7 +5,7 @@ import Prelude
 import Control.Monad.Free (Free)
 import Data.Date (Date, Month(..), exactDate)
 import Data.Enum (toEnum)
-import Railroad (fromJust)
+import Railroad (unsafeJust)
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import URL (bulkURL, eodURL, liveURL)
@@ -35,7 +35,7 @@ urlTests = suite "URL" do
       (liveURL "knockknock" "AMZN")
 
 dateJanSecond2003 :: Date
-dateJanSecond2003 = fromJust $ exactDate (fromJust $ toEnum 2003) January (fromJust $ toEnum 2)
+dateJanSecond2003 = unsafeJust $ exactDate (unsafeJust $ toEnum 2003) January (unsafeJust $ toEnum 2)
 
 dateDecemberFifteenth2006 :: Date
-dateDecemberFifteenth2006 = fromJust $ exactDate (fromJust $ toEnum 2006) December (fromJust $ toEnum 15)
+dateDecemberFifteenth2006 = unsafeJust $ exactDate (unsafeJust $ toEnum 2006) December (unsafeJust $ toEnum 15)

@@ -7,13 +7,15 @@ import Data.Maybe (Maybe(..))
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Test.Value (aaplAmznBulkDays, aaplAmznBulkDaysJSON, aaplBulkDay)
-import Type.BulkDay (bulkDaysFromJSON, isOptimalBulkDay)
+import Type.BulkDay (bulkDaysFromJSON, bulkDaysToJSON, isOptimalBulkDay)
 
 bulkDayTests :: Free TestF Unit
 bulkDayTests = suite "BulkDay" do
   test "bulkDaysFromJSON" do
     Assert.equal Nothing (bulkDaysFromJSON "")
     Assert.equal (Just aaplAmznBulkDays) (bulkDaysFromJSON aaplAmznBulkDaysJSON)
+  test "bulkDaysToJSON" do
+    Assert.equal (Just aaplAmznBulkDays) (bulkDaysFromJSON $ bulkDaysToJSON aaplAmznBulkDays)
   test "isOptimalBulkDay" do
     Assert.equal true (isOptimalBulkDay aaplBulkDay)
     Assert.equal false (isOptimalBulkDay aaplBulkDay { code = "AAEKX" })

@@ -9,7 +9,7 @@ import Fetch (fetch)
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readTextFile, writeTextFile)
 import Node.Process (lookupEnv)
-import Railroad (fromJust_, toRight, tryAff, tryEffect)
+import Railroad (unsafeJust, toRight, tryAff, tryEffect)
 import Type.Alias (AffE, URL, EffectE)
 
 getURL :: URL -> AffE String

@@ -10,25 +10,16 @@ import Data.Date (Date)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
-import Effect.Aff (Aff, Error, launchAff_)
+import Effect.Aff (Aff, Error, launchAff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import IO (getBulkDays, getEODDays, getLiveDay)
-import Railroad (fromJust, fuse, launchAffE)
+import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
-import Utils (date)
-
-printCatFact :: AffE Unit
-printCatFact = do
-  --res <- getURL "https://catfact.ninja/fact"
-  res <- getLiveDay "AMZN"
-  liftEffect $ log $ show $ res
-
---logAffE :: String -> AffE Unit
---logAffE = log >>> laun
+import Type.Date as D
 
 previousTradingDate :: Date
-previousTradingDate = fromJust $ date 2022 12 5
+previousTradingDate = D.unsafeDate 2022 12 5
 
 logAffE :: forall a. (Error -> Maybe String) -> (a -> Maybe String) -> AffE a -> AffE a
 logAffE logErr logA aff = runExceptT aff >>= (\eith ->
@@ -41,4 +32,4 @@ logAffE logErr logA aff = runExceptT aff >>= (\eith ->
       Nothing -> pure $ Right r) # ExceptT
 
 main ∷ Effect Unit
-main = getBulkDays (fromJust $ date 2022 12 5) # logAffE (show >>> Just) (length >>> show >>> Just) # launchAffE
+main = getBulkDays (D.unsafeDate 2022 12 5) # logAffE (show >>> Just) (length >>> show >>> Just) # launchAffE

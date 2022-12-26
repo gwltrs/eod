@@ -23,12 +23,9 @@ leftToMaybe :: forall a b. Either a b -> Maybe a
 leftToMaybe (Left a) = Just a
 leftToMaybe (Right _) = Nothing
 
-fromJust_ :: forall a. String -> Maybe a -> a
-fromJust_ _ (Just a) = a
-fromJust_ err (Nothing) = unsafeCrashWith err
-
-fromJust :: forall a. Maybe a -> a
-fromJust = fromJust_ "Expecting a Just but found Nothing"
+unsafeJust :: forall a. Maybe a -> a
+unsafeJust (Just a) = a
+unsafeJust Nothing = unsafeCrashWith "Used unsafeJust but found Nothing"
 
 tryEffect :: forall a. Effect a -> EffectE a
 tryEffect = try >>> ExceptT

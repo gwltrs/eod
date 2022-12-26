@@ -25,6 +25,12 @@ getBulkDays date = do
   res <- getURL (bulkURL key date)
   except $ toRight (error "Failed to parse bulk days JSON") $ filter isOptimalBulkDay <$> bulkDaysFromJSON res
 
+--readBulkDays :: Date -> AffE (Array BulkDay)
+--readBulkDays date = 
+
+--writeBulkDays :: Date -> Array BulkDay -> AffE Unit
+--writeBulkDays date arr = 
+
 getEODDays :: Date -> Sym -> AffE (Array EODDay)
 getEODDays date sym = do
   key <- liftEffectE getAPIKey
@@ -42,4 +48,4 @@ cacheAffE getCache setCache getData = (\a ->
   runExceptT (getCache a) >>= (\e ->
     case e of
       Left _ -> getData a >>= (\d -> (setCache a d) *> (pure d)) # runExceptT
-      _ -> pure e ) # ExceptT)
+      _ -> pure e ) # ExceptT )

@@ -1,4 +1,4 @@
-module Type.BulkDay (BulkDay, bulkDay, bulkDaysFromJSON, isOptimalBulkDay, toEODDay) where
+module Type.BulkDay (BulkDay, bulkDay, bulkDaysFromJSON, bulkDaysToJSON, isOptimalBulkDay, toEODDay) where
 
 import Prelude
 
@@ -10,7 +10,7 @@ import Data.Traversable (traverse)
 import Foreign.Object (lookup)
 import Railroad (rightToMaybe)
 import Type.EODDay (EODDay)
-import Utils (allTrue, isAlphaStr)
+import Utils (allTrue, isAlphaStr, toJSONArray)
 
 type BulkDay = { code :: String, date :: String, open :: Number, high :: Number, low :: Number, close :: Number, volume :: Number }
 
@@ -21,16 +21,29 @@ bulkDayFromJSON :: Json -> Maybe BulkDay
 bulkDayFromJSON json = do
   obj <- toObject json
   co <- lookup "code" obj >>= toString
-  d <- lookup "date" obj>>= toString
-  o <- lookup "open" obj>>= toNumber
-  h <- lookup "high" obj>>= toNumber
-  l <- lookup "low" obj>>= toNumber
-  cl <- lookup "close" obj>>= toNumber
-  v <- lookup "volume" obj>>= toNumber
+  d <- lookup "date" obj >>= toString
+  o <- lookup "open" obj >>= toNumber
+  h <- lookup "high" obj >>= toNumber
+  l <- lookup "low" obj >>= toNumber
+  cl <- lookup "close" obj >>= toNumber
+  v <- lookup "volume" obj >>= toNumber
   pure $ bulkDay co d o h l cl v
+
+bulkDayToJSON :: BulkDay -> String
+bulkDayToJSON day = 
+  "{\"code\":\"" <> day.code <> "\"" <>
+  ",\"date\":\"" <> day.date <> "\"" <>
+  ",\"open\":" <> show day.open <>
+  ",\"high\":" <> show day.high <>
+  ",\"low\":" <> show day.low <>
+  ",\"close\":" <> show day.close <>
+  ",\"volume\":" <> show day.volume <> "}"
 
 bulkDaysFromJSON :: String -> Maybe (Array BulkDay)
 bulkDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= traverse bulkDayFromJSON
+
+bulkDaysToJSON :: Array BulkDay -> String
+bulkDaysToJSON = toJSONArray bulkDayToJSON
 
 isOptimalBulkDay :: BulkDay -> Boolean
 isOptimalBulkDay day = 

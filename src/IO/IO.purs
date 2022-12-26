@@ -23,7 +23,7 @@ import URL (bulkURL, eodURL, liveURL)
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
   key <- liftEffectE getAPIKey
-  res <- getURL (bulkURL key date)
+  res <- getURL $ bulkURL key date
   except $ toRight (error "Failed to parse bulk days JSON") $ filter isOptimalBulkDay <$> bulkDaysFromJSON res
 
 --readBulkDays :: Date -> AffE (Array BulkDay)
@@ -35,13 +35,13 @@ getBulkDays date = do
 getEODDays :: YMD -> Sym -> AffE (Array EODDay)
 getEODDays date sym = do
   key <- liftEffectE getAPIKey
-  res <- getURL (eodURL key date sym)
+  res <- getURL $ eodURL key date sym
   except $ toRight (error "Failed to parse eod days JSON") $ eodDaysFromJSON res
 
 getLiveDay :: Sym -> AffE LiveDay
 getLiveDay sym = do
   key <- liftEffectE getAPIKey
-  res <- getURL (liveURL key sym)
+  res <- getURL $ liveURL key sym
   except $ toRight (error "Failed to parse live day JSON") $ liveDayFromJSON res
 
 cacheAffE :: forall a b.  (a -> AffE b) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)

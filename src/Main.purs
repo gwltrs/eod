@@ -17,7 +17,6 @@ import Forceable (frc)
 import IO (getBulkDays, getEODDays, getLiveDay)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
-import Type.Date as D
 import Type.YMD (YMD(..), ymd)
 
 previousTradingDate :: YMD

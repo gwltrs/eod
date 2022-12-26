@@ -30,7 +30,7 @@ parse str = do
   ymd y m d
 
 instance eqYMD :: Eq YMD where
-  eq (YMD a) (YMD b) = a == b
+  eq (YMD a) (YMD b) = eq a b
 
 instance arbYMD :: Arbitrary YMD where
   arbitrary = 

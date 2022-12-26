@@ -10,18 +10,20 @@ import Data.Traversable (traverse)
 import Foreign.Object (lookup)
 import Railroad (rightToMaybe)
 import Type.EODDay (EODDay)
+import Type.YMD (YMD(..))
+import Type.YMD as Y
 import Utils (allTrue, isAlphaStr, toJSONArray)
 
-type BulkDay = { code :: String, date :: String, open :: Number, high :: Number, low :: Number, close :: Number, volume :: Number }
+type BulkDay = { code :: String, date :: YMD, open :: Number, high :: Number, low :: Number, close :: Number, volume :: Number }
 
-bulkDay :: String -> String -> Number -> Number -> Number -> Number -> Number -> BulkDay
+bulkDay :: String -> YMD -> Number -> Number -> Number -> Number -> Number -> BulkDay
 bulkDay = { code: _, date: _, open: _, high: _, low: _, close: _, volume: _ }
 
 bulkDayFromJSON :: Json -> Maybe BulkDay
 bulkDayFromJSON json = do
   obj <- toObject json
   co <- lookup "code" obj >>= toString
-  d <- lookup "date" obj >>= toString
+  d <- lookup "date" obj >>= toString >>= Y.parse
   o <- lookup "open" obj >>= toNumber
   h <- lookup "high" obj >>= toNumber
   l <- lookup "low" obj >>= toNumber
@@ -32,7 +34,7 @@ bulkDayFromJSON json = do
 bulkDayToJSON :: BulkDay -> String
 bulkDayToJSON day = 
   "{\"code\":\"" <> day.code <> "\"" <>
-  ",\"date\":\"" <> day.date <> "\"" <>
+  ",\"date\":\"" <> show day.date <> "\"" <>
   ",\"open\":" <> show day.open <>
   ",\"high\":" <> show day.high <>
   ",\"low\":" <> show day.low <>

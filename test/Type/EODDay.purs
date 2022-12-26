@@ -6,12 +6,13 @@ import Control.Monad.Free (Free)
 import Data.Maybe (Maybe(..))
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
-import Test.Value (aaplAmznBulkDays, aaplAmznBulkDaysJSON)
-import Type.BulkDay (toEODDay)
-import Type.EODDay (eodDaysFromJSON)
+import Test.Value (aaplAmznBulkDays, aaplAmznBulkDaysJSON, aaplAmznEODDays, aaplBulkDay)
+import Type.EODDay (eodDaysFromJSON, eodDaysToJSON, toLiveDay)
 
 eodDayTests :: Free TestF Unit
 eodDayTests = suite "EODDay" do
   test "eodDaysFromJSON" do
     Assert.equal Nothing (eodDaysFromJSON "")
-    Assert.equal (aaplAmznBulkDays <#> toEODDay # Just) (eodDaysFromJSON aaplAmznBulkDaysJSON)
+    Assert.equal (Just aaplAmznEODDays) (eodDaysFromJSON aaplAmznBulkDaysJSON)
+  test "eodDaysToJSON" do
+    Assert.equal (Just aaplAmznEODDays) (eodDaysFromJSON $ eodDaysToJSON aaplAmznEODDays)

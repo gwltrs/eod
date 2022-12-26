@@ -9,6 +9,7 @@ import Data.String (length)
 import Data.Traversable (traverse)
 import Foreign.Object (lookup)
 import Railroad (rightToMaybe)
+import Test.QuickCheck (class Arbitrary, arbitrary)
 import Type.EODDay (EODDay)
 import Type.YMD (YMD(..))
 import Type.YMD as Y

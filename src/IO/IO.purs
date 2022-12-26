@@ -17,9 +17,10 @@ import Type.Alias (AffE, Sym)
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
 import Type.EODDay (EODDay, eodDaysFromJSON)
 import Type.LiveDay (LiveDay, liveDayFromJSON)
+import Type.YMD (YMD(..))
 import URL (bulkURL, eodURL, liveURL)
 
-getBulkDays :: Date -> AffE (Array BulkDay)
+getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
   key <- liftEffectE getAPIKey
   res <- getURL (bulkURL key date)
@@ -31,7 +32,7 @@ getBulkDays date = do
 --writeBulkDays :: Date -> Array BulkDay -> AffE Unit
 --writeBulkDays date arr = 
 
-getEODDays :: Date -> Sym -> AffE (Array EODDay)
+getEODDays :: YMD -> Sym -> AffE (Array EODDay)
 getEODDays date sym = do
   key <- liftEffectE getAPIKey
   res <- getURL (eodURL key date sym)

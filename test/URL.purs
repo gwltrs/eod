@@ -5,9 +5,11 @@ import Prelude
 import Control.Monad.Free (Free)
 import Data.Date (Date, Month(..), exactDate)
 import Data.Enum (toEnum)
+import Forceable (frc)
 import Railroad (unsafeJust)
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
+import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
 
 urlTests :: Free TestF Unit
@@ -34,8 +36,8 @@ urlTests = suite "URL" do
       "https://eodhistoricaldata.com/api/real-time/AMZN.US?api_token=knockknock&fmt=json" 
       (liveURL "knockknock" "AMZN")
 
-dateJanSecond2003 :: Date
-dateJanSecond2003 = unsafeJust $ exactDate (unsafeJust $ toEnum 2003) January (unsafeJust $ toEnum 2)
+dateJanSecond2003 :: YMD
+dateJanSecond2003 = frc $ ymd 2003 1 2
 
-dateDecemberFifteenth2006 :: Date
-dateDecemberFifteenth2006 = unsafeJust $ exactDate (unsafeJust $ toEnum 2006) December (unsafeJust $ toEnum 15)
+dateDecemberFifteenth2006 :: YMD
+dateDecemberFifteenth2006 = frc $ ymd 2006 12 15

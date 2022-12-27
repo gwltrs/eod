@@ -15,6 +15,7 @@ import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
 import IO (getBulkDays, getEODDays, getLiveDay, logAffE)
+import Indicators (longFullness)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
 import Type.YMD (YMD(..), ymd)
@@ -23,4 +24,5 @@ previousTradingDate :: YMD
 previousTradingDate = frc $ ymd 2022 12 23
 
 main ∷ Effect Unit
-main = getBulkDays previousTradingDate <#> length # logAffE # launchAffE
+--main = getBulkDays previousTradingDate <#> length # logAffE # launchAffE
+main = getLiveDay "BABA" <#> longFullness # logAffE # launchAffE

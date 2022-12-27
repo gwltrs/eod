@@ -207,9 +207,3 @@ instance altSlice :: Alt Slice where
   
 instance plusSlice :: Plus Slice where
   empty = sempty
-  
--- instance alternativeSlice :: Alternative Slice
-
--- instance monadZeroSlice :: MonadZero Slice
-
--- instance monadPlusSlice :: MonadPlus Slice

@@ -4,6 +4,7 @@ import Prelude
 
 import Control.Monad.Except (ExceptT(..), except, runExceptT)
 import Data.Array (filter)
+import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.Either (Either(..))
 import Data.Functor (voidLeft, voidRight)
@@ -11,8 +12,9 @@ import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple)
 import Effect.Aff (Aff, error)
 import Effect.Class (liftEffect)
+import Effect.Console (log)
 import IO.Atom (getAPIKey, getURL)
-import Railroad (liftEffectE, toRight)
+import Railroad (fuse, liftEffectE, toRight)
 import Type.Alias (AffE, Sym)
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
 import Type.EODDay (EODDay, eodDaysFromJSON)
@@ -50,3 +52,8 @@ cacheAffE getCache setCache getData = (\a ->
     case e of
       Left _ -> getData a >>= (\d -> (setCache a d) *> (pure d)) # runExceptT
       _ -> pure e ) # ExceptT )
+
+logAffE :: forall a. Show a => AffE a -> AffE a
+logAffE a = 
+  let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
+  in logged *> a

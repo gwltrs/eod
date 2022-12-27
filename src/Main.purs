@@ -14,18 +14,13 @@ import Effect.Aff (Aff, Error, launchAff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
-import IO (getBulkDays, getEODDays, getLiveDay)
+import IO (getBulkDays, getEODDays, getLiveDay, logAffE)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
 import Type.YMD (YMD(..), ymd)
 
 previousTradingDate :: YMD
 previousTradingDate = frc $ ymd 2022 12 23
-
-logAffE :: forall a. Show a => AffE a -> AffE a
-logAffE a = 
-  let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
-  in logged *> a
 
 main ∷ Effect Unit
 main = getBulkDays previousTradingDate <#> length # logAffE # launchAffE

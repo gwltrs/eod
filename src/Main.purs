@@ -20,7 +20,7 @@ import Type.Alias (AffE)
 import Type.YMD (YMD(..), ymd)
 
 previousTradingDate :: YMD
-previousTradingDate = frc $ ymd 2022 12 5
+previousTradingDate = frc $ ymd 2022 12 23
 
 logAffE :: forall a. (Error -> Maybe String) -> (a -> Maybe String) -> AffE a -> AffE a
 logAffE logErr logA aff = runExceptT aff >>= (\eith ->

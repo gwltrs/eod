@@ -9,6 +9,7 @@ import Test.Type.LiveDay (liveDayTests)
 import Test.Type.YMD (ymdTests)
 import Test.URL (urlTests)
 import Test.Unit.Main (runTest)
+import Test.Utils (utilsTests)
 
 main :: Effect Unit
 main = runTest do
@@ -17,3 +18,4 @@ main = runTest do
   liveDayTests
   urlTests
   ymdTests
+  utilsTests

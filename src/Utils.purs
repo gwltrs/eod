@@ -23,7 +23,8 @@ toJSONArray f a =
   let inner = a <#> f # intercalate ","
   in "[" <> inner <> "]"
 
-slices :: forall a. Int -> Array a -> Array (Slice a)
-slices n arr = 
+slices :: forall a. Int -> Slice a -> Array (Slice a)
+slices n s0 = 
   let f s = if slen s >= n && n > 0 then Just (Tuple (stake n s) (fromMaybe sempty (stail s))) else Nothing
-  in unfoldr f (slice arr)
+  in unfoldr f s0
+

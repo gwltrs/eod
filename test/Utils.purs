@@ -4,7 +4,7 @@ import Prelude
 
 import Control.Monad.Free (Free)
 import Data.Maybe (Maybe(..))
-import Data.Slice (sarray)
+import Data.Slice (Slice, sarray, sempty, slice, stail, stake)
 import Effect.Class (liftEffect)
 import Forceable (frc, ($!))
 import Test.QuickCheck (quickCheck, (<?>))
@@ -37,14 +37,14 @@ utilsTests = suite "Utils" do
     Assert.equal [] (slices 0 noUnits <#> sarray)
     Assert.equal [] (slices 1 noUnits <#> sarray)
 
-vowels :: Array String
-vowels = ["a", "e", "i", "o", "u"]
+vowels :: Slice String
+vowels = stake 5 $ slice ["a", "e", "i", "o", "u", "x", "y", "z"]
 
-bools :: Array Boolean
-bools = [false, true]
+bools :: Slice Boolean
+bools = stake 2 $ frc $ stail $ slice [false, false, true, true]
 
-units :: Array Unit
-units = [unit]
+units :: Slice Unit
+units = slice [unit]
 
-noUnits :: Array Unit
-noUnits = []
+noUnits :: Slice Unit
+noUnits = sempty

@@ -2,12 +2,13 @@ module Utils where
 
 import Prelude
 
+import Class.RandomAccess (class RandomAccess, rAt)
 import Data.CodePoint.Unicode (isAlpha)
 import Data.Date (Date, Month(..), exactDate)
 import Data.Enum (toEnum)
 import Data.Foldable (foldr, intercalate)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Slice (Slice, sempty, slen, slice, stail, stake)
+import Data.Slice (Slice, sdrop, sempty, slen, slice, stail, stake)
 import Data.String (length, toCodePointArray)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (unfoldr)
@@ -28,3 +29,23 @@ slices n s0 =
   let f s = if slen s >= n && n > 0 then Just (Tuple (stake n s) (fromMaybe sempty (stail s))) else Nothing
   in unfoldr f s0
 
+uncurryRA :: forall a b r. RandomAccess r => (a -> a -> b) -> r a -> b
+uncurryRA f r = f (rAt 0 r) (rAt 1 r)
+
+infixr 0 uncurryRA as $$
+
+doubleMap :: forall f g a b. Functor f => Functor g => (a -> b) -> f (g a) -> f (g b)
+doubleMap a b = (a <$> _) <$> b
+
+infixl 4 doubleMap as <<$>>
+
+doubleMapFlipped :: forall f g a b. Functor f => Functor g => f (g a) -> (a -> b) -> f (g b)
+doubleMapFlipped a b = doubleMap b a
+
+infixl 1 doubleMapFlipped as <<#>>
+
+sLastN :: forall a. Int -> Slice a -> Slice a
+sLastN i s = sdrop (slen s - i) s
+
+sLastN' :: forall a. Int -> Array a -> Slice a
+sLastN' i a = sLastN i (slice a)

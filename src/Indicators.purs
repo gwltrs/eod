@@ -1,28 +1,14 @@
-module Indicators where
+module Type.Indicator.Indicators where
 
 import Prelude
 
-import Class.RandomAccess (class RandomAccess, rAt, rLen)
-import Data.Foldable (foldr, maximum)
-import Data.Int (toNumber)
-import Data.Number (abs)
-import Data.Slice (Slice, sat, slast, slen)
+import Data.Foldable (sum)
+import Data.Slice (sat)
 import Forceable (frc)
-import Type.LiveDay (LiveDay, liveDay)
-import Utils (slices)
+import Type.Indicator (Indicator(..))
 
-longFullness :: LiveDay -> Number
-longFullness d = 
-  if d.close > d.open
-  then (d.close - d.open) / (d.high - d.low)
-  else 0.0
+sma :: Int -> Indicator Number
+sma n = Indicator { n: n, f: (\days -> days <#> _.close # sum) }
 
-atr :: forall r. RandomAccess r => r LiveDay -> Number
-atr r = 
-  let 
-    tr a b = frc $ maximum $ abs <$> [b.high - b.low, b.high - a.close, b.low - a.close]
-    sumTR i0 i1 x = if i0 < i1 then tr (rAt i0 r) (rAt (i0 + 1) r) + sumTR (i0 + 1) i1 x else x
-    summedTR = sumTR 0 (rLen r - 1) 0.0
-    count = toNumber (rLen r - 1)
-  in    
-    summedTR / count
+price :: Indicator Number
+price = Indicator { n: 1, f: (\days -> (frc $ sat days 0).close) }

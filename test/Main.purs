@@ -19,3 +19,4 @@ main = runTest do
   urlTests
   ymdTests
   utilsTests
+  indicatorTests

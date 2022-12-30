@@ -1,13 +1,25 @@
-module Type.Indicator where
+module Type.Indicator
+  ( Indicator
+  , indicate
+  , indicate'
+  , indicator
+  )
+  where
 
 import Prelude
 
 import Data.Maybe (Maybe(..))
-import Data.Slice (Slice)
+import Data.Slice (Slice, slice)
 import Type.LiveDay (LiveDay)
+
+indicator :: forall a. Int -> (Slice LiveDay -> a) -> Indicator a
+indicator n f = Indicator { n: n, f:  f }
 
 indicate :: forall a. Indicator a -> Slice LiveDay -> Maybe a
 indicate (Indicator i) s = Just $ i.f s 
+
+indicate' :: forall a. Indicator a -> Array LiveDay -> Maybe a
+indicate' i a = indicate i (slice a) 
 
 newtype Indicator a = Indicator { n :: Int, f :: Slice LiveDay -> a }
 

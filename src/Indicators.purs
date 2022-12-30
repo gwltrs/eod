@@ -1,14 +1,17 @@
-module Type.Indicator.Indicators where
+module Indicators where
 
 import Prelude
 
 import Data.Foldable (sum)
 import Data.Slice (sat)
 import Forceable (frc)
-import Type.Indicator (Indicator(..))
+import Type.Indicator (Indicator, indicator)
+
+lastPrice :: Indicator Number
+lastPrice = indicator 1 (frc >>> _.close)
 
 sma :: Int -> Indicator Number
-sma n = Indicator { n: n, f: (\days -> days <#> _.close # sum) }
+sma n = indicator n (\d -> d <#> _.close # sum)
 
-price :: Indicator Number
-price = Indicator { n: 1, f: (\days -> (frc $ sat days 0).close) }
+shiftLeft :: forall a. Int -> Indicator a -> Indicator a
+shiftLeft n i = i 

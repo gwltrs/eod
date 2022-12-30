@@ -2,9 +2,10 @@ module Forceable where
 
 import Prelude
 
-import Data.Array (unsafeIndex)
+import Data.Array (index, unsafeIndex)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
+import Data.Slice (Slice, sat)
 import Partial.Unsafe (unsafeCrashWith, unsafePartial)
 
 class Forceable f where
@@ -19,7 +20,10 @@ instance forceableEither :: Forceable (Either a) where
   frc (Left _) = unsafeCrashWith "failed to force Either"
 
 instance forceableArray :: Forceable Array where
-  frc a = unsafePartial $ unsafeIndex a 0
+  frc a = unsafeCrashWith "failed to force Array" $ index a 0
+
+instance forceableSlice :: Forceable Slice where
+  frc s = unsafeCrashWith "failed to force Slice" $ sat s 0 
 
 forceApply :: forall a b c. Forceable a => (b -> c) -> a b -> c
 forceApply f x = f (frc x)

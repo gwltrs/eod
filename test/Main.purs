@@ -3,6 +3,7 @@ module Test.Main where
 import Prelude
 
 import Effect (Effect)
+import Test.Indicator (indicatorTests)
 import Test.Type.BulkDay (bulkDayTests)
 import Test.Type.EODDay (eodDayTests)
 import Test.Type.LiveDay (liveDayTests)

@@ -1,4 +1,4 @@
-module Type.LiveDay (LiveDay, liveDay, liveDayFromJSON) where
+module Type.LiveDay (LiveDay, liveDay, liveDayFromJSON, noMove) where
 
 import Prelude
 
@@ -22,3 +22,6 @@ liveDayFromJSON json = do
   c <- lookup "close" obj >>= toNumber
   v <- lookup "volume" obj >>= toNumber
   pure $ liveDay o h l c v
+
+noMove :: Number -> LiveDay
+noMove n = { open: n, high: n, low: n, close: n, volume: n }

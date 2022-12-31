@@ -22,9 +22,8 @@ indicatorTests = suite "Indicator" do
     Assert.equal (Just 5.5) (indicate' (sma 10) noMoves1to10)
     Assert.equal Nothing (indicate' (sma 11) noMoves1to10)
   test "lastPrice, shiftLeft" do
-    Assert.equal "a" ((Just "a") # frc)
-    -- Assert.equal (Just 10.0) (indicate' lastPrice noMoves1to10)
-    -- Assert.equal (Just 10.0) (indicate' (shiftLeft 0 lastPrice) noMoves1to10)
+    Assert.equal (Just 10.0) (indicate' lastPrice noMoves1to10)
+    Assert.equal (Just 10.0) (indicate' (shiftLeft 0 lastPrice) noMoves1to10)
     -- Assert.equal (Just 9.0) (indicate' (shiftLeft 1 lastPrice) noMoves1to10)
     -- Assert.equal (Just 8.0) (indicate' (shiftLeft 2 lastPrice) noMoves1to10)
     -- Assert.equal (Just 2.0) (indicate' (shiftLeft 8 lastPrice) noMoves1to10)

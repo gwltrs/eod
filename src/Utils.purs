@@ -51,4 +51,4 @@ slastN' :: forall a. Int -> Array a -> Slice a
 slastN' i a = slastN i (slice a)
 
 sdrop :: forall a. Int -> Slice a -> Slice a
-sdrop n s = s
+sdrop n s = stake (slen s - n) s

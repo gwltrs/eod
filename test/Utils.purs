@@ -11,7 +11,7 @@ import Test.QuickCheck (quickCheck, (<?>))
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Type.YMD as Y
-import Utils (slastN, slices)
+import Utils (sdrop, slastN, slices)
 
 utilsTests :: Free TestF Unit
 utilsTests = suite "Utils" do
@@ -57,6 +57,27 @@ utilsTests = suite "Utils" do
     -- empty
     Assert.equal [] (slastN 0 noUnits # sarray)
     Assert.equal [] (slastN 1 noUnits # sarray)
+  test "sdrop" do
+        -- vowels
+    Assert.equal ["a", "e", "i", "o", "u"] (sdrop 0 vowels # sarray)
+    Assert.equal ["a", "e", "i", "o"] (sdrop 1 vowels # sarray)
+    Assert.equal ["a", "e", "i"] (sdrop 2 vowels # sarray)
+    Assert.equal ["a", "e"] (sdrop 3 vowels # sarray)
+    Assert.equal ["a"] (sdrop 4 vowels # sarray)
+    Assert.equal [] (sdrop 5 vowels # sarray)
+    Assert.equal [] (sdrop 6 vowels # sarray)
+    -- bools
+    Assert.equal [false, true] (sdrop 0 bools # sarray)
+    Assert.equal [false] (sdrop 1 bools # sarray)
+    Assert.equal [] (sdrop 2 bools # sarray)
+    Assert.equal [] (sdrop 3 bools # sarray)
+    -- units
+    Assert.equal [unit] (sdrop 0 units # sarray)
+    Assert.equal [] (sdrop 1 units # sarray)
+    Assert.equal [] (sdrop 2 units # sarray)
+    -- empty
+    Assert.equal [] (sdrop 0 noUnits # sarray)
+    Assert.equal [] (sdrop 1 noUnits # sarray)
 
 vowels :: Slice String
 vowels = stake 5 $ slice ["a", "e", "i", "o", "u", "x", "y", "z"]

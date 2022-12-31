@@ -3,23 +3,28 @@ module Type.Indicator
   , indicate
   , indicate'
   , indicator
+  , shiftLeft
   )
   where
 
 import Prelude
 
 import Data.Maybe (Maybe(..))
-import Data.Slice (Slice, slice)
+import Data.Slice (Slice, slen, slice, stake)
 import Type.LiveDay (LiveDay)
+import Utils (sdrop, slastN)
 
 indicator :: forall a. Int -> (Slice LiveDay -> a) -> Indicator a
-indicator n f = Indicator { n: n, f:  f }
+indicator n f = Indicator { n: n, f: slastN n >>> f }
 
 indicate :: forall a. Indicator a -> Slice LiveDay -> Maybe a
-indicate (Indicator i) s = Just $ i.f s 
+indicate (Indicator i) s = if slen s >= i.n then Just $ i.f s else Nothing
 
 indicate' :: forall a. Indicator a -> Array LiveDay -> Maybe a
-indicate' i a = indicate i (slice a) 
+indicate' i a = indicate i (slice a)
+
+shiftLeft :: forall a. Int -> Indicator a -> Indicator a
+shiftLeft n (Indicator i) = Indicator { n: (i.n + n), f: sdrop n >>> i.f }
 
 newtype Indicator a = Indicator { n :: Int, f :: Slice LiveDay -> a }
 

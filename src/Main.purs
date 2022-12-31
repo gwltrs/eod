@@ -21,7 +21,7 @@ import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
 import Type.EODDay (toLiveDay)
 import Type.YMD (YMD(..), ymd)
-import Utils (sLastN, sLastN', (<<#>>))
+import Utils (slastN, slastN', (<<#>>))
 
 previousTradingDate :: YMD
 previousTradingDate = frc $ ymd 2022 12 23

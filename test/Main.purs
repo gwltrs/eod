@@ -3,6 +3,7 @@ module Test.Main where
 import Prelude
 
 import Effect (Effect)
+import Test.Forceable (forceableTests)
 import Test.Indicator (indicatorTests)
 import Test.Type.BulkDay (bulkDayTests)
 import Test.Type.EODDay (eodDayTests)
@@ -21,3 +22,4 @@ main = runTest do
   ymdTests
   utilsTests
   indicatorTests
+  forceableTests

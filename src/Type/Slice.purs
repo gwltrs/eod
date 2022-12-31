@@ -7,7 +7,7 @@ module Data.Slice
   , scompare
   , sconcat
   , sconcatMap
-  , sdrop
+  , sskip
   , sempty
   , seq
   , sfind
@@ -75,8 +75,8 @@ imin a b = if a < b then a else b
 
 -- | Drop a number of elements from the start of a slice, 
 -- | creating a new slice (O(1)).
-sdrop :: forall a. Int -> Slice a -> Slice a
-sdrop n ss@(Slice s) = sfromLen cn cl ss
+sskip :: forall a. Int -> Slice a -> Slice a
+sskip n ss@(Slice s) = sfromLen cn cl ss
   where cn = imax 0 n
         nl = s.len - cn
         cl = imax 0 nl
@@ -112,7 +112,7 @@ sinit ss@(Slice s) = Just $ stake (s.len - 1) ss
 -- | or `Nothing` if the slice is empty (O(1)).
 stail :: forall a. Slice a -> Maybe (Slice a)
 stail s | snull s = Nothing
-stail s = Just $ sdrop 1 s
+stail s = Just $ sskip 1 s
 
 -- | Test whether a slice is empty.
 snull :: forall a. Slice a -> Boolean

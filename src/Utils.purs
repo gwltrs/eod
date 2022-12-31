@@ -8,7 +8,7 @@ import Data.Date (Date, Month(..), exactDate)
 import Data.Enum (toEnum)
 import Data.Foldable (foldr, intercalate)
 import Data.Maybe (Maybe(..), fromMaybe)
-import Data.Slice (Slice, sdrop, sempty, slen, slice, stail, stake)
+import Data.Slice (Slice, sempty, slen, slice, sskip, stail, stake)
 import Data.String (length, toCodePointArray)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (unfoldr)
@@ -44,8 +44,11 @@ doubleMapFlipped a b = doubleMap b a
 
 infixl 1 doubleMapFlipped as <<#>>
 
-sLastN :: forall a. Int -> Slice a -> Slice a
-sLastN i s = sdrop (slen s - i) s
+slastN :: forall a. Int -> Slice a -> Slice a
+slastN i s = sskip (slen s - i) s
 
-sLastN' :: forall a. Int -> Array a -> Slice a
-sLastN' i a = sLastN i (slice a)
+slastN' :: forall a. Int -> Array a -> Slice a
+slastN' i a = slastN i (slice a)
+
+sdrop :: forall a. Int -> Slice a -> Slice a
+sdrop n s = s

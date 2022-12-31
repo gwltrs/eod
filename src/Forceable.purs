@@ -4,8 +4,8 @@ import Prelude
 
 import Data.Array (index, unsafeIndex)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
-import Data.Slice (Slice, sat)
+import Data.Maybe (Maybe(..), fromJust)
+import Data.Slice (Slice, sat, slen)
 import Partial.Unsafe (unsafeCrashWith, unsafePartial)
 
 class Forceable f where
@@ -20,10 +20,14 @@ instance forceableEither :: Forceable (Either a) where
   frc (Left _) = unsafeCrashWith "failed to force Either"
 
 instance forceableArray :: Forceable Array where
-  frc a = unsafeCrashWith "failed to force Array" $ index a 0
+  frc [] = unsafeCrashWith "failed to force Array"
+  frc a = unsafePartial fromJust $ index a 0
 
 instance forceableSlice :: Forceable Slice where
-  frc s = unsafeCrashWith "failed to force Slice" $ sat s 0 
+  frc s = 
+    if slen s > 0 
+    then unsafePartial fromJust $ sat s 0 
+    else unsafeCrashWith "failed to force Slice"
 
 forceApply :: forall a b c. Forceable a => (b -> c) -> a b -> c
 forceApply f x = f (frc x)

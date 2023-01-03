@@ -1,9 +1,11 @@
 module Type.Indicator
-  ( Indicator
+  ( (<<)
+  , Indicator
   , indicate
   , indicate'
   , indicator
   , shiftLeft
+  , shiftLeftFlipped
   )
   where
 
@@ -25,6 +27,11 @@ indicate' i a = indicate i (slice a)
 
 shiftLeft :: forall a. Int -> Indicator a -> Indicator a
 shiftLeft n (Indicator i) = Indicator { n: (i.n + n), f: sdrop n >>> i.f }
+
+shiftLeftFlipped :: forall a. Indicator a -> Int -> Indicator a
+shiftLeftFlipped = flip shiftLeft
+
+infixr 9 shiftLeftFlipped as <<
 
 newtype Indicator a = Indicator { n :: Int, f :: Slice LiveDay -> a }
 

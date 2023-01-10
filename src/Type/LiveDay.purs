@@ -1,4 +1,11 @@
-module Type.LiveDay (LiveDay, liveDay, liveDayFromJSON, noMove) where
+module Type.LiveDay
+  ( LiveDay
+  , avg
+  , liveDay
+  , liveDayFromJSON
+  , noMove
+  )
+  where
 
 import Prelude
 
@@ -25,3 +32,6 @@ liveDayFromJSON json = do
 
 noMove :: Number -> LiveDay
 noMove n = { open: n, high: n, low: n, close: n, volume: n }
+
+avg :: LiveDay -> Number
+avg d = (d.open + d.high + d.low + d.close) / 4.0

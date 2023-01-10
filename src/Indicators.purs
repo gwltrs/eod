@@ -2,14 +2,29 @@ module Indicators where
 
 import Prelude
 
+import Class.RandomAccess (rAt)
 import Data.Foldable (sum)
 import Data.Int (toNumber)
-import Data.Slice (sat)
+import Data.Maybe (Maybe(..))
+import Data.Number (infinity)
+import Data.Slice (Slice, sat)
 import Forceable (frc)
 import Type.Indicator (Indicator, indicator)
+import Type.LiveDay (LiveDay, avg)
 
-day :: Indicator { open :: Number, high :: Number, low :: Number, close :: Number, volume :: Number }
+day :: Indicator LiveDay
 day = indicator 1 frc
 
 sma :: Int -> Indicator Number
 sma n = indicator n (\d -> d <#> _.close # sum # (_ / toNumber n))
+
+concaveness :: Indicator Int
+concaveness =
+  let 
+    d' n s = (avg $ rAt n s) - (avg $ rAt (n + 1) s)
+    f0 s n d = if n < 0 || ((d' n s) <= d) then max 0 (10 - n - 3) else f0 s (n - 1) (d' n s)
+    f1 s = f0 s 7 (d' 8 s)
+  in indicator 10 f1
+
+-- convexness :: Indicator (Maybe Int)
+-- convexness = indicator 10

@@ -18,6 +18,7 @@ import Railroad (fuse, liftEffectE, toRight)
 import Type.Alias (AffE, Sym)
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
 import Type.EODDay (EODDay, eodDaysFromJSON)
+import Type.Indicator (Indicator)
 import Type.LiveDay (LiveDay, liveDayFromJSON)
 import Type.YMD (YMD(..))
 import URL (bulkURL, eodURL, liveURL)
@@ -46,6 +47,8 @@ getLiveDay sym = do
   res <- getURL $ liveURL key sym
   except $ toRight (error "Failed to parse live day JSON") $ liveDayFromJSON res
 
+
+
 cacheAffE :: forall a b.  (a -> AffE b) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)
 cacheAffE getCache setCache getData = (\a -> 
   runExceptT (getCache a) >>= (\e ->
@@ -57,3 +60,7 @@ logAffE :: forall a. Show a => AffE a -> AffE a
 logAffE a = 
   let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
   in logged *> a
+
+-- filterPrint :: Indicator Boolean -> Indicator Boolean -> AffE Unit
+-- filterPrint sort1 sort2 = do
+--   symbols <- 

@@ -18,12 +18,12 @@ day = indicator 1 frc
 sma :: Int -> Indicator Number
 sma n = indicator n (\d -> d <#> _.close # sum # (_ / toNumber n))
 
-concaveness :: Indicator Int
-concaveness =
+concave :: Indicator (Maybe Int)
+concave =
   let 
     d' n s = (avg $ rAt n s) - (avg $ rAt (n + 1) s)
-    f0 s n d = if n < 0 || ((d' n s) <= d) then max 0 (10 - n - 3) else f0 s (n - 1) (d' n s)
-    f1 s = f0 s 7 (d' 8 s)
+    f0 s n d = if n < 0 || ((d' n s) <= d) then max 0 (10 - n - 1) else f0 s (n - 1) (d' n s)
+    f1 s = let x = f0 s 7 (d' 8 s) in if x > 2 then Just x else Nothing
   in indicator 10 f1
 
 -- convexness :: Indicator (Maybe Int)

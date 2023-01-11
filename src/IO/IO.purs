@@ -15,11 +15,11 @@ import Effect.Class (liftEffect)
 import Effect.Console (log)
 import IO.Atom (getAPIKey, getURL)
 import Railroad (fuse, liftEffectE, toRight)
-import Type.Alias (AffE, Sym)
+import Type.Alias (Sym, AffE)
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
-import Type.EODDay (EODDay, eodDaysFromJSON)
+import Type.EODDay (EODDay, eodDaysFromJSON, toLiveDay)
 import Type.Indicator (Indicator)
-import Type.LiveDay (LiveDay, liveDayFromJSON)
+import Type.LiveDay (LiveDay, liveDay, liveDayFromJSON)
 import Type.YMD (YMD(..))
 import URL (bulkURL, eodURL, liveURL)
 
@@ -47,7 +47,11 @@ getLiveDay sym = do
   res <- getURL $ liveURL key sym
   except $ toRight (error "Failed to parse live day JSON") $ liveDayFromJSON res
 
-
+getEODDaysWithLiveDay :: YMD -> Sym -> AffE (Array LiveDay)
+getEODDaysWithLiveDay date sym = do
+  eodDays <- getEODDays date sym
+  liveDay <- getLiveDay sym
+  pure $ (toLiveDay <$> eodDays) <> [liveDay]
 
 cacheAffE :: forall a b.  (a -> AffE b) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)
 cacheAffE getCache setCache getData = (\a -> 
@@ -61,6 +65,6 @@ logAffE a =
   let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
   in logged *> a
 
--- filterPrint :: Indicator Boolean -> Indicator Boolean -> AffE Unit
--- filterPrint sort1 sort2 = do
---   symbols <- 
+-- filterPrint :: Indicator Boolean -> AffE (Array String)
+-- filterAndPrint filter = 
+--   let inner

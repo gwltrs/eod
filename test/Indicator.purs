@@ -44,15 +44,15 @@ indicatorTests = suite "Indicator" do
       Nothing 
       (indicate' ((*) <$> sma 3 <*> (sma 3 # shiftLeft 10)) noMoves1to10)
   test "convex" do
-    Assert.equal Nothing (frc $ indicate' convex noMoves1to20)
-    Assert.equal Nothing (frc $ indicate' convex noMoves20to1)
-    Assert.equal Nothing (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0, 5.0, 4.0])
-    Assert.equal (Just 3) (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 2.0, 4.0, 8.0])
-    Assert.equal (Just 4) (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 1.0, 0.0, 1.0])
-    Assert.equal (Just 5) (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 16.0, 4.0, 1.0, 0.0, 1.0])
-    Assert.equal Nothing (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 16.0, 4.0, 1.0, 10.0, 1.0])
-    Assert.equal (Just 10) (frc $ indicate' convex $ noMove <$> [4.0, 2.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
-    Assert.equal (Just 10) (frc $ indicate' convex $ noMove <$> [8.0, 4.0, 2.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
+    Assert.equal 0 (frc $ indicate' convex noMoves1to20)
+    Assert.equal 0 (frc $ indicate' convex noMoves20to1)
+    Assert.equal 0 (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0, 5.0, 4.0])
+    Assert.equal 3 (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 2.0, 4.0, 8.0])
+    Assert.equal 4 (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 1.0, 0.0, 1.0])
+    Assert.equal 5 (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 16.0, 4.0, 1.0, 0.0, 1.0])
+    Assert.equal 0 (frc $ indicate' convex $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 16.0, 4.0, 1.0, 10.0, 1.0])
+    Assert.equal 10 (frc $ indicate' convex $ noMove <$> [4.0, 2.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
+    Assert.equal 10 (frc $ indicate' convex $ noMove <$> [8.0, 4.0, 2.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
 
 noMoves1to10 :: Array LiveDay
 noMoves1to10 = noMove <$> toNumber <$> range 1 10

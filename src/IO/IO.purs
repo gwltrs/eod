@@ -3,11 +3,13 @@ module IO where
 import Prelude
 
 import Control.Monad.Except (ExceptT(..), except, runExceptT)
-import Data.Array (filter, sort, sortWith)
+import Data.Array (filter, sort, sortWith, take)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
+import Data.DateTime.Instant (fromDate)
 import Data.Either (Either(..))
 import Data.Functor (voidLeft, voidRight)
+import Data.JSDate (toDate)
 import Data.Maybe (Maybe(..))
 import Data.Tuple (Tuple)
 import Effect.Aff (Aff, error)
@@ -22,6 +24,7 @@ import Type.Indicator (Indicator)
 import Type.LiveDay (LiveDay, liveDay, liveDayFromJSON)
 import Type.YMD (YMD(..))
 import URL (bulkURL, eodURL, liveURL)
+import Utils ((<<#>>))
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -65,6 +68,17 @@ logAffE a =
   let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
   in logged *> a
 
--- filterAndPrint :: Indicator Boolean -> AffE (Array String)
--- filterAndPrint filter = 
---   let inner
+
+
+findStocks 
+  :: forall a. Ord a
+  => YMD 
+  -> YMD 
+  -> Indicator Boolean 
+  -> Indicator Boolean  
+  -> Indicator a 
+  -> AffE Unit
+findStocks fromDate toDate filter1 filter2 sort = do
+  symbols <- getBulkDays toDate <<#>> _.code <#> take 10 # logAffE
+
+  pure unit

@@ -30,6 +30,7 @@ to generate this file without the comments in this block.
   , "foreign-object"
   , "free"
   , "integers"
+  , "js-date"
   , "maybe"
   , "newtype"
   , "node-buffer"

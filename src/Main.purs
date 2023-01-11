@@ -27,5 +27,5 @@ previousTradingDate :: YMD
 previousTradingDate = frc $ ymd 2022 12 23
 
 main ∷ Effect Unit
-main = getBulkDays previousTradingDate <#> length # logAffE # launchAffE
+main = getBulkDays previousTradingDate <<#>> _.code # logAffE # launchAffE
 --main = getEODDays (frc $ ymd 2022 1 1) "BABA" <<#>> toLiveDay <#> (sLastN' 30 >>> atr) # logAffE # launchAffE

@@ -3,7 +3,7 @@ module IO where
 import Prelude
 
 import Control.Monad.Except (ExceptT(..), except, runExceptT)
-import Data.Array (filter)
+import Data.Array (filter, sort, sortWith)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.Either (Either(..))
@@ -27,7 +27,7 @@ getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
   key <- liftEffectE getAPIKey
   res <- getURL $ bulkURL key date
-  except $ toRight (error "Failed to parse bulk days JSON") $ filter isOptimalBulkDay <$> bulkDaysFromJSON res
+  except $ toRight (error "Failed to parse bulk days JSON") $ sortWith _.code <$> filter isOptimalBulkDay <$> bulkDaysFromJSON res
 
 --readBulkDays :: Date -> AffE (Array BulkDay)
 --readBulkDays date = 
@@ -65,6 +65,6 @@ logAffE a =
   let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
   in logged *> a
 
--- filterPrint :: Indicator Boolean -> AffE (Array String)
+-- filterAndPrint :: Indicator Boolean -> AffE (Array String)
 -- filterAndPrint filter = 
 --   let inner

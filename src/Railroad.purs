@@ -43,6 +43,9 @@ toRight _ (Just a) = Right a
 liftEffectE :: forall a. EffectE a -> AffE a
 liftEffectE = runExceptT >>> liftEffect >>> ExceptT
 
+toAffE :: forall a. Effect a -> AffE a
+toAffE = (_ <#> Right) >>> liftEffect >>> ExceptT 
+
 fuse :: forall a. Either a a -> a
 fuse (Left l) = l
 fuse (Right r) = r

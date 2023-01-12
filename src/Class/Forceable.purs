@@ -6,6 +6,7 @@ import Data.Array (index, unsafeIndex)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), fromJust)
 import Data.Slice (Slice, sat, slen)
+import Data.String (length)
 import Partial.Unsafe (unsafeCrashWith, unsafePartial)
 
 class Forceable f where
@@ -15,7 +16,7 @@ instance forceableMaybe :: Forceable Maybe where
   frc (Just a) = a
   frc Nothing = unsafeCrashWith "failed to force Maybe"
 
-instance forceableEither :: Forceable (Either a) where
+instance forceableEither :: Forceable (Either l) where
   frc (Right r) = r
   frc (Left _) = unsafeCrashWith "failed to force Either"
 

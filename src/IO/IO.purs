@@ -2,29 +2,34 @@ module IO where
 
 import Prelude
 
-import Control.Monad.Except (ExceptT(..), except, runExceptT)
-import Data.Array (filter, sort, sortWith, take)
+import Class.RandomAccess (rAt, rLen)
+import Control.Monad.Except (ExceptT(..), catchError, except, runExceptT)
+import Data.Array (filter, snoc, sort, sortWith, take)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.DateTime.Instant (fromDate)
 import Data.Either (Either(..))
 import Data.Functor (voidLeft, voidRight)
 import Data.JSDate (toDate)
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Number (remainder)
+import Data.Slice (Slice, shead, slen, slice, stail)
 import Data.Tuple (Tuple)
-import Effect.Aff (Aff, error)
+import Effect.Aff (Aff, Milliseconds(..), delay, error)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
+import Forceable (frc)
 import IO.Atom (getAPIKey, getURL)
-import Railroad (fuse, liftEffectE, toRight)
+import Prim.Boolean (True)
+import Railroad (fuse, liftEffectE, toAffE, toRight)
 import Type.Alias (Sym, AffE)
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
 import Type.EODDay (EODDay, eodDaysFromJSON, toLiveDay)
-import Type.Indicator (Indicator)
+import Type.Indicator (Indicator, indicate')
 import Type.LiveDay (LiveDay, liveDay, liveDayFromJSON)
 import Type.YMD (YMD(..))
 import URL (bulkURL, eodURL, liveURL)
-import Utils ((<<#>>))
+import Utils (stail', (<<#>>))
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -50,8 +55,8 @@ getLiveDay sym = do
   res <- getURL $ liveURL key sym
   except $ toRight (error "Failed to parse live day JSON") $ liveDayFromJSON res
 
-getEODDaysWithLiveDay :: YMD -> Sym -> AffE (Array LiveDay)
-getEODDaysWithLiveDay date sym = do
+getEODDaysAndLiveDay :: YMD -> Sym -> AffE (Array LiveDay)
+getEODDaysAndLiveDay date sym = do
   eodDays <- getEODDays date sym
   liveDay <- getLiveDay sym
   pure $ (toLiveDay <$> eodDays) <> [liveDay]
@@ -68,17 +73,37 @@ logAffE a =
   let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
   in logged *> a
 
+delayE :: Number -> AffE Unit
+delayE seconds = ExceptT (Right <$> (delay $ Milliseconds $ seconds * 1000.0))
 
+logE :: String -> AffE Unit
+logE = log >>> toAffE
 
-findStocks 
-  :: forall a. Ord a
-  => YMD 
-  -> YMD 
-  -> Indicator Boolean 
-  -> Indicator Boolean  
-  -> Indicator a 
-  -> AffE Unit
-findStocks fromDate toDate filter1 filter2 sort = do
-  symbols <- getBulkDays toDate <<#>> _.code <#> take 10 # logAffE
-
-  pure unit
+findStocks :: YMD -> YMD -> Indicator Boolean -> AffE Unit
+findStocks fromDate toDate filter = 
+  let 
+    traverseStocks :: Slice String -> Array String -> AffE (Array String)
+    traverseStocks remaining matches = 
+      if slen remaining == 0 then pure matches
+      else do
+        --logE $ frc remaining
+        delayE 0.5
+        -- if (rLen remaining >= 2) && ((rAt 0 remaining) /= (rAt 1 remaining)) then
+        --   pure []
+        -- else 
+        --   pure []
+        days <- getEODDaysAndLiveDay fromDate (frc remaining)
+          --`catchError` (const $ pure [])
+        case indicate' filter days of 
+          Nothing -> do
+            logE "network error/insufficient number of days"
+            traverseStocks (stail' remaining) matches
+          (Just true) -> do
+            logE $ frc remaining
+            traverseStocks (stail' remaining) (snoc matches (frc remaining))
+          (Just false) -> do
+            traverseStocks (stail' remaining) matches
+  in do
+    syms <- getBulkDays toDate <<#>> _.code -- <#> take 10
+    picks <- traverseStocks (slice syms) []
+    toAffE $ log $ show picks

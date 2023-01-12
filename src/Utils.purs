@@ -12,6 +12,7 @@ import Data.Slice (Slice, sempty, slen, slice, sskip, stail, stake)
 import Data.String (length, toCodePointArray)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (unfoldr)
+import Forceable (frc)
 
 allTrue :: Array Boolean -> Boolean
 allTrue = foldr (&&) true
@@ -56,3 +57,6 @@ slastN' i a = slastN i (slice a)
 
 sdrop :: forall a. Int -> Slice a -> Slice a
 sdrop n s = stake (slen s - n) s
+
+stail' :: forall a. Slice a -> Slice a
+stail' s = if slen s > 0 then frc $ stail s else s

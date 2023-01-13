@@ -45,4 +45,4 @@ filter =
     (&&) <$> isConvex <*> yesterdayIsLowest
 
 main ∷ Effect Unit
-main = launchAffE $ findStocks fromDate toDate ((_ >= 5) <$> (convex avg))
+main = launchAffE $ findStocks fromDate toDate ((_ >= 6) <$> (convex avg))

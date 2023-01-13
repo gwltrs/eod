@@ -87,13 +87,13 @@ findStocks fromDate toDate filter =
       if slen remaining == 0 then pure matches
       else do
         --logE $ frc remaining
-        delayE 0.5
+        delayE 0.25
         -- if (rLen remaining >= 2) && ((rAt 0 remaining) /= (rAt 1 remaining)) then
         --   pure []
         -- else 
         --   pure []
         days <- getEODDaysAndLiveDay fromDate (frc remaining)
-          --`catchError` (const $ pure [])
+          `catchError` (const $ pure [])
         case indicate' filter days of 
           Nothing -> do
             logE "network error/insufficient number of days"

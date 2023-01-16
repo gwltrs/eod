@@ -4,7 +4,7 @@ import Prelude
 
 import Class.RandomAccess (rAt, rLen)
 import Control.Monad.Except (ExceptT(..), catchError, except, runExceptT)
-import Data.Array (filter, snoc, sort, sortWith, take)
+import Data.Array (filter, fold, snoc, sort, sortWith, take)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.DateTime.Instant (fromDate)
@@ -13,8 +13,10 @@ import Data.Functor (voidLeft, voidRight)
 import Data.JSDate (toDate)
 import Data.Maybe (Maybe(..), fromMaybe)
 import Data.Number (remainder)
-import Data.Slice (Slice, shead, slen, slice, stail)
+import Data.Slice (Slice, shead, slast, slen, slice, stail)
+import Data.Traversable (sequence)
 import Data.Tuple (Tuple)
+import Effect (Effect)
 import Effect.Aff (Aff, Milliseconds(..), delay, error)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
@@ -22,14 +24,14 @@ import Forceable (frc)
 import IO.Atom (getAPIKey, getURL)
 import Prim.Boolean (True)
 import Railroad (fuse, liftEffectE, toAffE, toRight)
-import Type.Alias (Sym, AffE)
+import Type.Alias (AffE, Ticker)
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
 import Type.EODDay (EODDay, eodDaysFromJSON, toLiveDay)
-import Type.Indicator (Indicator, indicate')
+import Type.Indicator (Indicator, indicate, indicate', minimumInputLength)
 import Type.LiveDay (LiveDay, liveDay, liveDayFromJSON)
-import Type.YMD (YMD(..))
+import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
-import Utils (stail', (<<#>>))
+import Utils (slices', stail', (<<#>>))
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -43,19 +45,19 @@ getBulkDays date = do
 --writeBulkDays :: Date -> Array BulkDay -> AffE Unit
 --writeBulkDays date arr = 
 
-getEODDays :: YMD -> Sym -> AffE (Array EODDay)
+getEODDays :: YMD -> Ticker -> AffE (Array EODDay)
 getEODDays date sym = do
   key <- liftEffectE getAPIKey
   res <- getURL $ eodURL key date sym
   except $ toRight (error "Failed to parse eod days JSON") $ eodDaysFromJSON res
 
-getLiveDay :: Sym -> AffE LiveDay
+getLiveDay :: Ticker -> AffE LiveDay
 getLiveDay sym = do
   key <- liftEffectE getAPIKey
   res <- getURL $ liveURL key sym
   except $ toRight (error "Failed to parse live day JSON") $ liveDayFromJSON res
 
-getEODDaysAndLiveDay :: YMD -> Sym -> AffE (Array LiveDay)
+getEODDaysAndLiveDay :: YMD -> Ticker -> AffE (Array LiveDay)
 getEODDaysAndLiveDay date sym = do
   eodDays <- getEODDays date sym
   liveDay <- getLiveDay sym
@@ -79,22 +81,28 @@ delayE seconds = ExceptT (Right <$> (delay $ Milliseconds $ seconds * 1000.0))
 logE :: String -> AffE Unit
 logE = log >>> toAffE
 
-findStocks :: YMD -> YMD -> Indicator Boolean -> AffE Unit
-findStocks fromDate toDate filter = 
+data SearchType = Live | History Ticker
+
+findHistory :: Ticker -> Indicator Boolean -> AffE Unit
+findHistory ticker isGoodPick = do
+  days <- getEODDays (frc $ ymd 1900 1 1) ticker
+  slices' (minimumInputLength isGoodPick) days
+    # filter ((_ <#> toLiveDay) >>> indicate isGoodPick >>> fromMaybe false)
+    <#> (slast >>> frc >>> _.date >>> show >>> log) -- Array (Effect Unit)
+    # fold
+    # liftEffect
+
+findToday :: YMD -> YMD -> Indicator Boolean -> AffE Unit
+findToday fromDate toDate isGoodPick = 
   let 
     traverseStocks :: Slice String -> Array String -> AffE (Array String)
     traverseStocks remaining matches = 
       if slen remaining == 0 then pure matches
       else do
-        --logE $ frc remaining
-        delayE 0.25
-        -- if (rLen remaining >= 2) && ((rAt 0 remaining) /= (rAt 1 remaining)) then
-        --   pure []
-        -- else 
-        --   pure []
+        delayE 0.1
         days <- getEODDaysAndLiveDay fromDate (frc remaining)
           `catchError` (const $ pure [])
-        case indicate' filter days of 
+        case indicate' isGoodPick days of 
           Nothing -> do
             logE "network error/insufficient number of days"
             traverseStocks (stail' remaining) matches
@@ -104,6 +112,6 @@ findStocks fromDate toDate filter =
           (Just false) -> do
             traverseStocks (stail' remaining) matches
   in do
-    syms <- getBulkDays toDate <<#>> _.code -- <#> take 10
+    syms <- getBulkDays toDate <<#>> _.code
     picks <- traverseStocks (slice syms) []
     toAffE $ log $ show picks

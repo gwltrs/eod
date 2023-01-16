@@ -15,7 +15,7 @@ import Effect.Aff (Aff, Error, launchAff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
-import IO (findStocks, getBulkDays, getEODDays, getLiveDay, logAffE)
+import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE)
 import Indicators (convex, day)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
@@ -29,7 +29,7 @@ fromDate :: YMD
 fromDate = frc $ ymd 2022 12 2
 
 toDate :: YMD
-toDate = frc $ ymd 2023 1 11
+toDate = frc $ ymd 2023 1 12
 
 filter :: Indicator Boolean
 filter = 
@@ -45,4 +45,5 @@ filter =
     (&&) <$> isConvex <*> yesterdayIsLowest
 
 main ∷ Effect Unit
-main = launchAffE $ findStocks fromDate toDate ((_ >= 6) <$> (convex avg))
+-- main = launchAffE $ findToday fromDate toDate ((_ >= 6) <$> (convex avg))
+main = launchAffE $ findHistory "SPY" ((_ >= 6) <$> (convex avg))

@@ -8,5 +8,5 @@ import Effect.Exception (Error)
 type AffE a = ExceptT Error Aff a
 type APIKey = String
 type EffectE a = ExceptT Error Effect a
-type Sym = String
+type Ticker = String
 type URL = String

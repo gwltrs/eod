@@ -4,6 +4,7 @@ module Type.Indicator
   , indicate
   , indicate'
   , indicator
+  , minimumInputLength
   , shiftLeft
   , shiftLeftFlipped
   )
@@ -24,6 +25,9 @@ indicate (Indicator i) s = if slen s >= i.n then Just $ i.f s else Nothing
 
 indicate' :: forall a. Indicator a -> Array LiveDay -> Maybe a
 indicate' i a = indicate i (slice a)
+
+minimumInputLength :: forall a. Indicator a -> Int
+minimumInputLength (Indicator i) = i.n
 
 shiftLeft :: forall a. Int -> Indicator a -> Indicator a
 shiftLeft n (Indicator i) = Indicator { n: (i.n + n), f: sdrop n >>> i.f }

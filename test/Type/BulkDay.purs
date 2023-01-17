@@ -9,6 +9,7 @@ import Test.Unit.Assert as Assert
 import Test.Value (aaplAmznBulkDays, aaplAmznBulkDaysJSON, aaplBulkDay, amznBulkDay)
 import Type.BulkDay (BulkDay, bulkDay, bulkDaysFromJSON, bulkDaysToJSON, isOptimalBulkDay, toEODDay)
 import Type.EODDay (toLiveDay)
+import Type.LiveDay (_c, _h, _l, _o, _v)
 
 bulkDayTests :: Free TestF Unit
 bulkDayTests = suite "BulkDay" do
@@ -33,4 +34,4 @@ roundTrip bd =
     eod = toEODDay bd
     live = toLiveDay eod
   in
-    bulkDay bd.code bd.date live.open live.high live.low live.close live.volume
+    bulkDay bd.code bd.date (_o live) (_h live) (_l live) (_c live) (_v live)

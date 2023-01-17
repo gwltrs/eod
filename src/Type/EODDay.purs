@@ -8,7 +8,7 @@ import Data.Maybe (Maybe)
 import Data.Traversable (traverse)
 import Foreign.Object (lookup)
 import Railroad (rightToMaybe)
-import Type.LiveDay (LiveDay)
+import Type.LiveDay (LiveDay(..))
 import Type.YMD (YMD(..))
 import Type.YMD as Y
 import Utils (toJSONArray)
@@ -46,4 +46,4 @@ eodDaysToJSON :: Array EODDay -> String
 eodDaysToJSON = toJSONArray eodDayToJSON
 
 toLiveDay :: EODDay -> LiveDay
-toLiveDay d = { open: d.open, high: d.high, low: d.low, close: d.close, volume: d.volume }
+toLiveDay d = LiveDay { open: d.open, high: d.high, low: d.low, close: d.close, volume: d.volume }

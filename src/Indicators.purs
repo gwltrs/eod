@@ -7,16 +7,22 @@ import Data.Foldable (sum)
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
 import Data.Number (infinity)
-import Data.Slice (Slice, sat)
+import Data.Slice (Slice, sat, slen)
 import Forceable (frc)
 import Type.Indicator (Indicator, indicator)
-import Type.LiveDay (LiveDay, avg)
+import Type.LiveDay (LiveDay, _c, avg)
+
+closes :: Indicator (Slice Number)
+closes = indicator 0 (map _c)
 
 day :: Indicator LiveDay
 day = indicator 1 frc
 
-sma :: Int -> Indicator Number
-sma n = indicator n (\d -> d <#> _.close # sum # (_ / toNumber n))
+lastN :: forall a. Int -> Indicator a -> Indicator a
+lastN n = (indicator n identity *> _)
+
+sma :: Indicator (Slice Number -> Number)
+sma = indicator 1 (const (\ns -> sum ns / (toNumber $ slen ns)))
 
 convex :: (LiveDay -> Number) -> Indicator Int
 convex fd =

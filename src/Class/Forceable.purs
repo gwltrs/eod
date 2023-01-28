@@ -30,6 +30,9 @@ instance forceableSlice :: Forceable Slice where
     then unsafePartial fromJust $ sat s 0 
     else unsafeCrashWith "failed to force Slice"
 
+instance forceableFunction :: Monoid a => Forceable (Function a) where
+  frc f = f mempty
+
 forceApply :: forall a b c. Forceable a => (b -> c) -> a b -> c
 forceApply f x = f (frc x)
 

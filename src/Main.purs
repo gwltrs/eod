@@ -19,9 +19,9 @@ import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE)
 import Indicators (convex, day)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
-import Type.EODDay (toLiveDay)
+import Type.EODDay (toDay)
 import Type.Indicator (Indicator, (<<))
-import Type.LiveDay (avg)
+import Type.Day (avg)
 import Type.YMD (YMD(..), ymd)
 import Utils (slastN, slastN', (<<#>>))
 
@@ -45,5 +45,5 @@ filter =
     (&&) <$> isConvex <*> yesterdayIsLowest
 
 main ∷ Effect Unit
--- main = launchAffE $ findToday fromDate toDate ((_ >= 6) <$> (convex avg))
-main = launchAffE $ findHistory "SPY" ((_ >= 6) <$> (convex avg))
+main = launchAffE $ findToday fromDate toDate ((_ >= 5) <$> (convex avg))
+-- main = launchAffE $ findHistory "SPY" ((_ >= 6) <$> (convex avg))

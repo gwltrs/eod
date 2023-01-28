@@ -13,7 +13,7 @@ import Indicators (closes, convex, day, lastN, sma)
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Type.Indicator (Indicator, indicate, indicate', indicator, shiftLeft, (<<))
-import Type.LiveDay (LiveDay, avg, noMove)
+import Type.Day (Day, avg, noMove)
 
 indicatorTests :: Free TestF Unit
 indicatorTests = suite "Indicator" do
@@ -57,11 +57,11 @@ indicatorTests = suite "Indicator" do
 smaC :: Int -> Indicator Number
 smaC i = sma <*> lastN i closes
 
-noMoves1to10 :: Array LiveDay
+noMoves1to10 :: Array Day
 noMoves1to10 = noMove <$> toNumber <$> range 1 10
 
-noMoves1to20 :: Array LiveDay
+noMoves1to20 :: Array Day
 noMoves1to20 = noMove <$> toNumber <$> range 1 20
 
-noMoves20to1 :: Array LiveDay
+noMoves20to1 :: Array Day
 noMoves20to1 = noMove <$> toNumber <$> range 20 1

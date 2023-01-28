@@ -7,7 +7,7 @@ import Test.Forceable (forceableTests)
 import Test.Indicator (indicatorTests)
 import Test.Type.BulkDay (bulkDayTests)
 import Test.Type.EODDay (eodDayTests)
-import Test.Type.LiveDay (liveDayTests)
+import Test.Type.Day (dayTests)
 import Test.Type.YMD (ymdTests)
 import Test.URL (urlTests)
 import Test.Unit.Main (runTest)
@@ -17,7 +17,7 @@ main :: Effect Unit
 main = runTest do
   bulkDayTests
   eodDayTests
-  liveDayTests
+  dayTests
   urlTests
   ymdTests
   utilsTests

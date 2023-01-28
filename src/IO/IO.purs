@@ -26,9 +26,9 @@ import Prim.Boolean (True)
 import Railroad (fuse, liftEffectE, toAffE, toRight)
 import Type.Alias (AffE, Ticker)
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
-import Type.EODDay (EODDay, eodDaysFromJSON, toLiveDay)
+import Type.EODDay (EODDay, eodDaysFromJSON, toDay)
 import Type.Indicator (Indicator, indicate, indicate', minimumInputLength)
-import Type.LiveDay (LiveDay, liveDay, liveDayFromJSON)
+import Type.Day (Day, day, dayFromJSON)
 import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
 import Utils (slices', stail', (<<#>>))
@@ -51,17 +51,17 @@ getEODDays date sym = do
   res <- getURL $ eodURL key date sym
   except $ toRight (error "Failed to parse eod days JSON") $ eodDaysFromJSON res
 
-getLiveDay :: Ticker -> AffE LiveDay
+getLiveDay :: Ticker -> AffE Day
 getLiveDay sym = do
   key <- liftEffectE getAPIKey
   res <- getURL $ liveURL key sym
-  except $ toRight (error "Failed to parse live day JSON") $ liveDayFromJSON res
+  except $ toRight (error "Failed to parse live day JSON") $ dayFromJSON res
 
-getEODDaysAndLiveDay :: YMD -> Ticker -> AffE (Array LiveDay)
+getEODDaysAndLiveDay :: YMD -> Ticker -> AffE (Array Day)
 getEODDaysAndLiveDay date sym = do
   eodDays <- getEODDays date sym
   liveDay <- getLiveDay sym
-  pure $ (toLiveDay <$> eodDays) <> [liveDay]
+  pure $ (toDay <$> eodDays) <> [liveDay]
 
 cacheAffE :: forall a b.  (a -> AffE b) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)
 cacheAffE getCache setCache getData = (\a -> 
@@ -87,7 +87,7 @@ findHistory :: Ticker -> Indicator Boolean -> AffE Unit
 findHistory ticker isGoodPick = do
   days <- getEODDays (frc $ ymd 1900 1 1) ticker
   slices' (minimumInputLength isGoodPick) days
-    # filter ((_ <#> toLiveDay) >>> indicate isGoodPick >>> fromMaybe false)
+    # filter ((_ <#> toDay) >>> indicate isGoodPick >>> fromMaybe false)
     <#> (slast >>> frc >>> _.date >>> show >>> log) -- Array (Effect Unit)
     # fold
     # liftEffect

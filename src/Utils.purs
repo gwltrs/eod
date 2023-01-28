@@ -13,6 +13,7 @@ import Data.String (length, toCodePointArray)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (unfoldr)
 import Forceable (frc)
+import Partial.Unsafe (unsafeCrashWith)
 
 allTrue :: Array Boolean -> Boolean
 allTrue = foldr (&&) true
@@ -63,3 +64,6 @@ sdrop n s = stake (slen s - n) s
 
 stail' :: forall a. Slice a -> Slice a
 stail' s = if slen s > 0 then frc $ stail s else s
+
+undefined :: forall a b. a -> b
+undefined _ = unsafeCrashWith "undefined"

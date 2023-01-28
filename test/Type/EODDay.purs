@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(..))
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Test.Value (aaplAmznBulkDays, aaplAmznBulkDaysJSON, aaplAmznEODDays, aaplBulkDay)
-import Type.EODDay (eodDaysFromJSON, eodDaysToJSON, toLiveDay)
+import Type.EODDay (eodDaysFromJSON, eodDaysToJSON, toDay)
 
 eodDayTests :: Free TestF Unit
 eodDayTests = suite "EODDay" do

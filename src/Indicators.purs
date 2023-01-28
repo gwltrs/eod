@@ -10,12 +10,13 @@ import Data.Number (infinity)
 import Data.Slice (Slice, sat, slen)
 import Forceable (frc)
 import Type.Indicator (Indicator, indicator)
-import Type.LiveDay (LiveDay, _c, avg)
+import Type.Day (Day, avg)
+import Data.Newtype (unwrap)
 
 closes :: Indicator (Slice Number)
-closes = indicator 0 (map _c)
+closes = indicator 0 (map $ unwrap >>> _.close)
 
-day :: Indicator LiveDay
+day :: Indicator Day
 day = indicator 1 frc
 
 lastN :: forall a. Int -> Indicator a -> Indicator a
@@ -24,7 +25,7 @@ lastN n = (indicator n identity *> _)
 sma :: Indicator (Slice Number -> Number)
 sma = indicator 1 (const (\ns -> sum ns / (toNumber $ slen ns)))
 
-convex :: (LiveDay -> Number) -> Indicator Int
+convex :: (Day -> Number) -> Indicator Int
 convex fd =
   let 
     d' n s = (fd $ rAt n s) - (fd $ rAt (n + 1) s)

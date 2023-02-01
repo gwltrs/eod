@@ -16,11 +16,11 @@ import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
 import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE)
-import Indicators (convex, day)
+-- import Indicators (convex, day)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
 import Type.EODDay (toDay)
-import Type.Indicator (Indicator, (<<))
+import Type.Indicator (Indicator)
 import Type.Day (avg)
 import Type.YMD (YMD(..), ymd)
 import Utils (slastN, slastN', (<<#>>))
@@ -31,19 +31,20 @@ fromDate = frc $ ymd 2022 12 2
 toDate :: YMD
 toDate = frc $ ymd 2023 1 12
 
-filter :: Indicator Boolean
-filter = 
-  let 
-    isConvex = (_ >= 4) <$> (convex avg)
-    today = avg <$> day
-    yesterday = avg <$> day << 1
-    twoDaysAgo = avg <$> day << 2
-    todayAboveYesterday = (>) <$> today <*> yesterday
-    twoDaysAgoAboveYesterday = (>) <$> twoDaysAgo <*> yesterday
-    yesterdayIsLowest = (&&) <$> todayAboveYesterday <*> twoDaysAgoAboveYesterday
-  in
-    (&&) <$> isConvex <*> yesterdayIsLowest
+-- filter :: Indicator Boolean
+-- filter = 
+--   let 
+--     isConvex = (_ >= 4) <$> (convex avg)
+--     today = avg <$> day
+--     yesterday = avg <$> day << 1
+--     twoDaysAgo = avg <$> day << 2
+--     todayAboveYesterday = (>) <$> today <*> yesterday
+--     twoDaysAgoAboveYesterday = (>) <$> twoDaysAgo <*> yesterday
+--     yesterdayIsLowest = (&&) <$> todayAboveYesterday <*> twoDaysAgoAboveYesterday
+--   in
+--     (&&) <$> isConvex <*> yesterdayIsLowest
 
 main ∷ Effect Unit
-main = launchAffE $ findToday fromDate toDate ((_ >= 5) <$> (convex avg))
+main = log "hello world"
+-- launchAffE $ findToday fromDate toDate ((_ >= 5) <$> (convex avg))
 -- main = launchAffE $ findHistory "SPY" ((_ >= 6) <$> (convex avg))

@@ -2,6 +2,7 @@ module Type.Indicator
   ( Indicator
   , indicate
   , indicate'
+  , last
   , minimumInputLength
   )
   where
@@ -23,8 +24,7 @@ last n = Indicator n (slastN n)
 --indicator l o f = Indicator { len: l, offset: o, f: slastN n >>> f }
 
 indicate :: forall a. Indicator a -> Slice Day -> Maybe a
-indicate _ = undefined
---indicate (Indicator i) s = if slen s >= i.n then Just $ i.f s else Nothing
+indicate (Indicator n f) s = if slen s >= n then Just $ f s else Nothing
 
 indicate' :: forall a. Indicator a -> Array Day -> Maybe a
 indicate' i a = indicate i (slice a)
@@ -44,10 +44,10 @@ instance functorIndicator :: Functor Indicator where
   map f' (Indicator n f) = Indicator n (map f' f)
 
 instance applyIndicator :: Apply Indicator where
-  apply (Indicator a b) (Indicator c d) = Indicator (max a c) (apply b d) -- (Indicator f) (Indicator i) = Indicator { n: max f.n i.n, f: (\d -> f.f d $ i.f d) }
+  apply (Indicator lN lF) (Indicator rN rF) = Indicator (max lN rN) (apply lF rF) -- (Indicator f) (Indicator i) = Indicator { n: max f.n i.n, f: (\d -> f.f d $ i.f d) }
 
 instance applicativeIndicator :: Applicative Indicator where
-  pure a = Indicator 0 (pure a) -- undefinedIndicator
+  pure a = Indicator 0 (pure a)
 
 -- instance bindIndicator :: Bind Indicator where
 --   bind (Indicator a b) c = Indicator 

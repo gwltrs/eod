@@ -1,6 +1,7 @@
 module Type.Day
   ( Day(..)
   , avg
+  , close
   , day
   , dayFromJSON
   , noMove
@@ -32,6 +33,9 @@ dayFromJSON json = do
   c <- lookup "close" obj >>= toNumber
   v <- lookup "volume" obj >>= toNumber
   pure $ day o h l c v
+
+close :: Day -> Number
+close (Day d) = d.close
 
 noMove :: Number -> Day
 noMove n = Day { open: n, high: n, low: n, close: n, volume: n }

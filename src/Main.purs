@@ -9,21 +9,21 @@ import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..))
-import Data.Slice (slice)
+import Data.Slice (Slice, slice)
 import Effect (Effect)
 import Effect.Aff (Aff, Error, launchAff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
 import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE)
--- import Indicators (convex, day)
+import Indicators (convex)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
 import Type.EODDay (toDay)
-import Type.Indicator (Indicator)
-import Type.Day (avg)
+import Type.Indicator (Indicator, last)
+import Type.Day (Day, avg, close)
 import Type.YMD (YMD(..), ymd)
-import Utils (slastN, slastN', (<<#>>))
+import Utils (slastN, slastN', (<<#>>), (<<$>>))
 
 fromDate :: YMD
 fromDate = frc $ ymd 2022 12 2
@@ -44,7 +44,9 @@ toDate = frc $ ymd 2023 1 12
 --   in
 --     (&&) <$> isConvex <*> yesterdayIsLowest
 
+asdf :: Indicator (Int)
+asdf = convex <$> (close <<$>> last 10)
+
 main ∷ Effect Unit
-main = log "hello world"
--- launchAffE $ findToday fromDate toDate ((_ >= 5) <$> (convex avg))
+main = launchAffE $ findToday fromDate toDate ((_ >= 5) <$> convex <$> (close <<$>> last 10))
 -- main = launchAffE $ findHistory "SPY" ((_ >= 6) <$> (convex avg))

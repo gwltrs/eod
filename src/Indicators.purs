@@ -2,7 +2,7 @@ module Indicators where
 
 import Prelude
 
-import Class.RandomAccess (class RandomAccess, rAt)
+import Class.RandomAccess (class RandomAccess, rLen, rAt)
 import Data.Foldable (sum)
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
@@ -26,12 +26,11 @@ import Data.Newtype (unwrap)
 -- sma = indicator 1 (const (\ns -> sum ns / (toNumber $ slen ns)))
 
 convex :: forall r. RandomAccess r => r Number -> Int
-convex ns = -1
-  --let 
-  --  d' n s = (ns $ rAt n s) - (ns $ rAt (n + 1) s)
-  --  f0 s n d = if n < 0 || ((d' n s) <= d) then max 0 (10 - n - 1) else f0 s (n - 1) (d' n s)
-  --  f1 s = let x = f0 s 7 (d' 8 s) in if x > 2 then x else 0
-  --in -1 -- indicator 10 f1
-
--- convexness :: Indicator (Maybe Int)
--- convexness = indicator 10
+convex ns =
+  let 
+    l = rLen ns
+    d' i = (rAt i ns) - (rAt (i + 1) ns)
+    f0 i d = if i < 0 || ((d' i) <= d) then max 0 (rLen ns - i - 1) else f0 (i - 1) (d' i)
+  in
+    let x = f0 (l - 3) (d' (l - 2))
+    in if x > 2 then x else 0

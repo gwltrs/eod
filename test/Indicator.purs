@@ -9,16 +9,16 @@ import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
 import Data.Slice (slice)
 import Forceable (frc)
--- import Indicators (closes, convex, day, lastN, sma)
+import Indicators (convex)
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Type.Indicator (Indicator, indicate, indicate')
-import Type.Day (Day, avg, noMove)
+import Type.Day (Day, avg, noMove, close)
 
 indicatorTests :: Free TestF Unit
 indicatorTests = suite "Indicator" do
-  test "Functor law Identity" do
-    Assert.equal true false
+  -- test "Functor law Identity" do
+  -- Assert.equal true false
   -- test "Functor law Composition" do
   --   Assert.equal true false
   -- test "Applicative law Identity" do
@@ -63,25 +63,25 @@ indicatorTests = suite "Indicator" do
   --   Assert.equal 
   --     Nothing 
   --     (indicate' ((*) <$> smaC 3 <*> (smaC 3 # shiftLeft 10)) noMoves1to10)
-  -- test "convex" do
-  --   Assert.equal 0 (frc $ indicate' (convex avg) noMoves1to20)
-  --   Assert.equal 0 (frc $ indicate' (convex avg) noMoves20to1)
-  --   Assert.equal 0 (frc $ indicate' (convex avg) $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0, 5.0, 4.0])
-  --   Assert.equal 3 (frc $ indicate' (convex avg) $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 2.0, 4.0, 8.0])
-  --   Assert.equal 4 (frc $ indicate' (convex avg) $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 1.0, 0.0, 1.0])
-  --   Assert.equal 5 (frc $ indicate' (convex avg) $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 16.0, 4.0, 1.0, 0.0, 1.0])
-  --   Assert.equal 0 (frc $ indicate' (convex avg) $ noMove <$> [1.0, 1.0, 1.0, 1.0, 1.0, 16.0, 4.0, 1.0, 10.0, 1.0])
-  --   Assert.equal 10 (frc $ indicate' (convex avg) $ noMove <$> [4.0, 2.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
-  --   Assert.equal 10 (frc $ indicate' (convex avg) $ noMove <$> [8.0, 4.0, 2.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
+  test "convex" do
+    Assert.equal 0 (convex (toNumber <$> range 1 20))
+    Assert.equal 0 (convex (toNumber <$> range 20 1))
+    Assert.equal 0 (convex [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 3.0, 5.0, 4.0])
+    Assert.equal 3 (convex [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 2.0, 4.0, 8.0])
+    Assert.equal 4 (convex [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 4.0, 1.0, 0.0, 1.0])
+    Assert.equal 5 (convex [1.0, 1.0, 1.0, 1.0, 1.0, 16.0, 4.0, 1.0, 0.0, 1.0])
+    Assert.equal 0 (convex [1.0, 1.0, 1.0, 1.0, 1.0, 16.0, 4.0, 1.0, 10.0, 1.0])
+    Assert.equal 10 (convex [4.0, 2.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
+    Assert.equal 11 (convex [8.0, 4.0, 2.0, 1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0])
 
 -- smaC :: Int -> Indicator Number
 -- smaC i = sma <*> lastN i closes
 
--- noMoves1to10 :: Array Day
--- noMoves1to10 = noMove <$> toNumber <$> range 1 10
+noMoves1to10 :: Array Day
+noMoves1to10 = noMove <$> toNumber <$> range 1 10
 
--- noMoves1to20 :: Array Day
--- noMoves1to20 = noMove <$> toNumber <$> range 1 20
+noMoves1to20 :: Array Day
+noMoves1to20 = noMove <$> toNumber <$> range 1 20
 
--- noMoves20to1 :: Array Day
--- noMoves20to1 = noMove <$> toNumber <$> range 20 1
+noMoves20to1 :: Array Day
+noMoves20to1 = noMove <$> toNumber <$> range 20 1

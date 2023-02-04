@@ -1,4 +1,8 @@
-module Indicators where
+module Indicators
+  ( at
+  , convex
+  )
+  where
 
 import Prelude
 
@@ -9,9 +13,10 @@ import Data.Maybe (Maybe(..))
 import Data.Number (infinity)
 import Data.Slice (Slice, sat, slen)
 import Forceable (frc)
-import Type.Indicator (Indicator)
-import Type.Day (Day, avg)
+import Type.Indicator (Indicator, last)
+import Type.Day (Day, avg, fourPrice)
 import Data.Newtype (unwrap)
+import Utils (undefined)
 
 -- closes :: Indicator (Slice Number)
 -- closes = indicator 0 (map $ unwrap >>> _.close)
@@ -24,6 +29,11 @@ import Data.Newtype (unwrap)
 
 -- sma :: Indicator (Slice Number -> Number)
 -- sma = indicator 1 (const (\ns -> sum ns / (toNumber $ slen ns)))
+
+at :: Int -> Indicator Day
+at i = 
+  let i' = max 0 i
+  in frc <$> last (1 + i')
 
 convex :: forall r. RandomAccess r => r Number -> Int
 convex ns =

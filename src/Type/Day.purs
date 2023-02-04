@@ -4,7 +4,8 @@ module Type.Day
   , close
   , day
   , dayFromJSON
-  , noMove
+  , fourPrice
+  , fourPrice
   )
   where
 
@@ -37,8 +38,8 @@ dayFromJSON json = do
 close :: Day -> Number
 close (Day d) = d.close
 
-noMove :: Number -> Day
-noMove n = Day { open: n, high: n, low: n, close: n, volume: n }
+fourPrice :: Number -> Day
+fourPrice n = Day { open: n, high: n, low: n, close: n, volume: n }
 
 avg :: Day -> Number
 avg (Day d) = (d.open + d.high + d.low + d.close) / 4.0

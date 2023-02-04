@@ -4,18 +4,18 @@ import Prelude
 
 import Class.RandomAccess (rAt, rLen)
 import Control.Monad.Except (ExceptT(..), catchError, except, runExceptT)
-import Data.Array (filter, fold, snoc, sort, sortWith, take)
+import Data.Array (filter, fold, snoc, sortWith, take, reverse)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.DateTime.Instant (fromDate)
 import Data.Either (Either(..))
 import Data.Functor (voidLeft, voidRight)
 import Data.JSDate (toDate)
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(..), fromMaybe, isJust)
 import Data.Number (remainder)
 import Data.Slice (Slice, shead, slast, slen, slice, stail)
 import Data.Traversable (sequence)
-import Data.Tuple (Tuple)
+import Data.Tuple (Tuple(..), fst, snd)
 import Effect (Effect)
 import Effect.Aff (Aff, Milliseconds(..), delay, error)
 import Effect.Class (liftEffect)
@@ -31,7 +31,8 @@ import Type.Indicator (Indicator, indicate, indicate', minimumInputLength)
 import Type.Day (Day, day, dayFromJSON)
 import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
-import Utils (slices', stail', (<<#>>))
+import Utils (slices', stail', filterMap)
+import Nested
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -81,18 +82,25 @@ delayE seconds = ExceptT (Right <$> (delay $ Milliseconds $ seconds * 1000.0))
 logE :: String -> AffE Unit
 logE = log >>> toAffE
 
-data SearchType = Live | History Ticker
-
-findHistory :: Ticker -> Indicator Boolean -> AffE Unit
-findHistory ticker isGoodPick = do
+findHistory :: forall a. Ord a => Show a => Ticker -> Indicator (Maybe a) -> AffE Unit
+findHistory ticker indicator = do
   days <- getEODDays (frc $ ymd 1900 1 1) ticker
-  slices' (minimumInputLength isGoodPick) days
-    # filter ((_ <#> toDay) >>> indicate isGoodPick >>> fromMaybe false)
-    <#> (slast >>> frc >>> _.date >>> show >>> log) -- Array (Effect Unit)
+  slices' (minimumInputLength indicator) days
+    # filterMap (\s -> 
+      let
+        ind :: Maybe a
+        ind = join $ indicate indicator $ map toDay s
+        date :: String
+        date = show $ _.date $ frc $ slast s
+      in
+        ind <#> (\i -> Tuple i date))
+    # sortWith fst
+    # reverse
+    # map (show >>> log)
     # fold
     # liftEffect
 
-findToday :: YMD -> YMD -> Indicator Boolean -> AffE Unit
+findToday :: forall a. Ord a => YMD -> YMD -> Indicator Boolean -> AffE Unit
 findToday fromDate toDate isGoodPick = 
   let 
     traverseStocks :: Slice String -> Array String -> AffE (Array String)

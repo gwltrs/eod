@@ -23,7 +23,8 @@ import Type.EODDay (toDay)
 import Type.Indicator (Indicator, last)
 import Type.Day (Day, avg, close)
 import Type.YMD (YMD(..), ymd)
-import Utils (slastN, slastN', (<<#>>), (<<$>>))
+import Utils (slastN, slastN', filterMaybe)
+import Nested
 
 fromDate :: YMD
 fromDate = frc $ ymd 2022 12 2
@@ -44,9 +45,17 @@ toDate = frc $ ymd 2023 1 12
 --   in
 --     (&&) <$> isConvex <*> yesterdayIsLowest
 
-asdf :: Indicator (Int)
-asdf = convex <$> (close <<$>> last 10)
+-- indicator :: Indicator (Maybe Int)
+-- indicator = 
+--   let 
+--     convexStreak = convex <$> (avg <<$>> last 15)
+--     avgAt i = avg <$> at i
+--     reversed = lessThan <$> avg 1 <*> (min <$> avgAt 0 <*> avgAt 2)
+--   in
+
 
 main ∷ Effect Unit
-main = launchAffE $ findToday fromDate toDate ((_ >= 5) <$> convex <$> (close <<$>> last 10))
--- main = launchAffE $ findHistory "SPY" ((_ >= 6) <$> (convex avg))
+main = 
+  pure unit
+  --launchAffE $ findToday fromDate toDate indicator
+  --launchAffE $ findHistory "SPY" indicator

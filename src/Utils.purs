@@ -3,17 +3,22 @@ module Utils where
 import Prelude
 
 import Class.RandomAccess (class RandomAccess, rAt, rLen)
+import Data.Array (filter)
 import Data.CodePoint.Unicode (isAlpha)
 import Data.Date (Date, Month(..), exactDate)
 import Data.Enum (toEnum)
 import Data.Foldable (class Foldable, foldr, intercalate)
-import Data.Maybe (Maybe(..), fromMaybe)
+import Data.Maybe (Maybe(..), fromMaybe, isJust)
 import Data.Slice (Slice, sempty, slen, slice, sskip, stail, stake)
 import Data.String (length, toCodePointArray)
 import Data.Tuple (Tuple(..))
 import Data.Unfoldable (unfoldr)
 import Forceable (frc)
 import Partial.Unsafe (unsafeCrashWith)
+import Control.Apply (lift2)
+
+--doubleApplySecond :: forall f g a b. Apply f => Apply g => f (g a) -> f (g b) -> f (g b)
+--doubleApplySecond a b = a *> (_ *> b)
 
 allTrue :: Array Boolean -> Boolean
 allTrue = foldr (&&) true
@@ -43,16 +48,6 @@ uncurryRA f r = f (rAt 0 r) (rAt 1 r)
 
 infixr 0 uncurryRA as $$
 
-doubleMap :: forall f g a b. Functor f => Functor g => (a -> b) -> f (g a) -> f (g b)
-doubleMap a b = (a <$> _) <$> b
-
-infixl 4 doubleMap as <<$>>
-
-doubleMapFlipped :: forall f g a b. Functor f => Functor g => f (g a) -> (a -> b) -> f (g b)
-doubleMapFlipped a b = doubleMap b a
-
-infixl 1 doubleMapFlipped as <<#>>
-
 slastN :: forall a. Int -> Slice a -> Slice a
 slastN i s = sskip (slen s - i) s
 
@@ -67,3 +62,10 @@ stail' s = if slen s > 0 then frc $ stail s else s
 
 undefined :: forall a b. a -> b
 undefined _ = unsafeCrashWith "undefined"
+
+filterMap :: forall a b. (a -> Maybe b) -> Array a -> Array b
+filterMap f a = a <#> f # filter isJust <#> frc
+
+filterMaybe :: forall a. (a -> Boolean) -> Maybe a -> Maybe a
+filterMaybe _ Nothing = Nothing
+filterMaybe f (Just a) = if f a then Just a else Nothing

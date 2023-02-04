@@ -9,60 +9,21 @@ import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
 import Data.Slice (slice)
 import Forceable (frc)
-import Indicators (convex)
+import Indicators (convex, at)
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Type.Indicator (Indicator, indicate, indicate')
-import Type.Day (Day, avg, noMove, close)
+import Type.Day (Day, day, avg, fourPrice, close)
 
 indicatorTests :: Free TestF Unit
 indicatorTests = suite "Indicator" do
-  -- test "Functor law Identity" do
-  -- Assert.equal true false
-  -- test "Functor law Composition" do
-  --   Assert.equal true false
-  -- test "Applicative law Identity" do
-  --   Assert.equal true false
-  -- test "Applicative law Composition" do
-  --   Assert.equal true false
-  -- test "Applicative law Homomorphism" do
-  --   Assert.equal true false
-  -- test "Applicative law Interchange" do
-  --   Assert.equal true false
-  -- test "Bind law Associativity" do
-  --   Assert.equal true false
-  -- test "Bind law Apply Superclass" do
-  --   Assert.equal true false
-  -- test "Monad law Left Identity" do
-  --   Assert.equal true false
-  -- test "Monad law Right Identity" do
-  --   Assert.equal true false
-  -- test "indicate, sma, closes" do
-  --   Assert.equal (Just 9.0) (indicate' (sma <*> lastN 3 closes) noMoves1to10)
-  --   Assert.equal (Just 5.5) (indicate' (sma <*> lastN 10 closes) noMoves1to10)
-  --   Assert.equal Nothing (indicate' (sma <*> lastN 11 closes) noMoves1to10)
-  -- test "day, shiftLeft" do
-  --   Assert.equal (Just 10.0) (indicate' (day <#> _.close) noMoves1to10)
-  --   Assert.equal (Just 10.0) (indicate' (shiftLeft 0 (day <#> _.close)) noMoves1to10)
-  --   Assert.equal (Just 9.0) (indicate' (shiftLeft 1 (day <#> _.close)) noMoves1to10)
-  --   Assert.equal (Just 8.0) (indicate' (shiftLeft 2 (day <#> _.close)) noMoves1to10)
-  --   Assert.equal (Just 2.0) (indicate' (shiftLeft 8 (day <#> _.close)) noMoves1to10)
-  --   Assert.equal (Just 1.0) (indicate' (shiftLeft 9 (day <#> _.close)) noMoves1to10)
-  --   Assert.equal Nothing (indicate' (shiftLeft 10 (day <#> _.close)) noMoves1to10)
-  -- test "Functor instance" do
-  --   Assert.equal 
-  --     (Just 16.0) 
-  --     (indicate' (smaC 3 << 1 <#> (_ * 2.0)) noMoves1to10)
-  --   Assert.equal 
-  --     Nothing 
-  --     (indicate' (smaC 3 # shiftLeft 9 <#> (_ * 2.0)) noMoves1to10)
-  -- test "Applicative instance" do
-  --   Assert.equal 
-  --     (Just 54.0) 
-  --     (indicate' ((*) <$> smaC 3 <*> (smaC 3 << 3)) noMoves1to10)
-  --   Assert.equal 
-  --     Nothing 
-  --     (indicate' ((*) <$> smaC 3 <*> (smaC 3 # shiftLeft 10)) noMoves1to10)
+  test "at" do
+    Assert.equal Nothing                  (indicate' (at 0) $ [])
+    Assert.equal (Just doji)              (indicate' (at 0) $ [doji])
+    Assert.equal Nothing                  (indicate' (at 1) $ [doji])
+    Assert.equal (Just $ fourPrice 3.0)   (indicate' (at 0) $ [doji, fourPrice 3.0])
+    Assert.equal (Just doji)              (indicate' (at 1) $ [doji, fourPrice 3.0])
+    Assert.equal Nothing                  (indicate' (at 2) $ [doji, fourPrice 3.0])
   test "convex" do
     Assert.equal 0 (convex (toNumber <$> range 1 20))
     Assert.equal 0 (convex (toNumber <$> range 20 1))
@@ -77,11 +38,14 @@ indicatorTests = suite "Indicator" do
 -- smaC :: Int -> Indicator Number
 -- smaC i = sma <*> lastN i closes
 
-noMoves1to10 :: Array Day
-noMoves1to10 = noMove <$> toNumber <$> range 1 10
+doji :: Day
+doji = day 10.0 12.0 8.0 10.0 1000.0
 
-noMoves1to20 :: Array Day
-noMoves1to20 = noMove <$> toNumber <$> range 1 20
+fourPrices1to10 :: Array Day
+fourPrices1to10 = fourPrice <$> toNumber <$> range 1 10
 
-noMoves20to1 :: Array Day
-noMoves20to1 = noMove <$> toNumber <$> range 20 1
+fourPrices1to20 :: Array Day
+fourPrices1to20 = fourPrice <$> toNumber <$> range 1 20
+
+fourPrices20to1 :: Array Day
+fourPrices20to1 = fourPrice <$> toNumber <$> range 20 1

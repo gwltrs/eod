@@ -69,3 +69,11 @@ filterMap f a = a <#> f # filter isJust <#> frc
 filterMaybe :: forall a. (a -> Boolean) -> Maybe a -> Maybe a
 filterMaybe _ Nothing = Nothing
 filterMaybe f (Just a) = if f a then Just a else Nothing
+
+bToMU :: Boolean -> Maybe Unit
+bToMU false = Nothing
+bToMU true = Just unit
+
+muToB :: Maybe Unit -> Boolean
+muToB (Just unit) = true
+muToB Nothing = false

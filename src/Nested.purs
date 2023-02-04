@@ -5,7 +5,6 @@ import Control.Apply (lift2, applyFirst, applySecond)
 
 nestedMap :: forall f g a b. Functor f => Functor g => (a -> b) -> f (g a) -> f (g b)
 nestedMap = compose map map
---nestedMap f a = (f <$> _) <$> a
 
 infixl 4 nestedMap as <<$>>
 

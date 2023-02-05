@@ -60,4 +60,4 @@ main ∷ Effect Unit
 main = 
   --pure unit
   --launchAffE $ findToday fromDate toDate indicator
-  launchAffE $ findHistory "ATOS" indicator
+  launchAffE $ findHistory "SPY" indicator

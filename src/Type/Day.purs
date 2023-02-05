@@ -35,8 +35,20 @@ dayFromJSON json = do
   v <- lookup "volume" obj >>= toNumber
   pure $ day o h l c v
 
+open :: Day -> Number
+open (Day d) = d.open
+
+high :: Day -> Number
+high (Day d) = d.high
+
+low :: Day -> Number
+low (Day d) = d.low
+
 close :: Day -> Number
 close (Day d) = d.close
+
+volume :: Day -> Number
+volume (Day d) = d.volume
 
 fourPrice :: Number -> Day
 fourPrice n = Day { open: n, high: n, low: n, close: n, volume: n }
@@ -44,14 +56,14 @@ fourPrice n = Day { open: n, high: n, low: n, close: n, volume: n }
 avg :: Day -> Number
 avg (Day d) = (d.open + d.high + d.low + d.close) / 4.0
 
-derive instance newtypeLiveDay :: Newtype Day _
+derive instance newtypeDay :: Newtype Day _
 
-derive instance eqLiveDay :: Eq Day
+derive instance eqDay :: Eq Day
 
-instance showLiveDay :: Show Day where
+instance showDay :: Show Day where
   show (Day d) = "Day " <> show d
 
-instance arbitraryLiveDay :: Arbitrary Day where
+instance arbitraryDay :: Arbitrary Day where
   arbitrary = do
     h <- choose 0.0 1000.0
     l <- choose 0.0 h
@@ -59,3 +71,11 @@ instance arbitraryLiveDay :: Arbitrary Day where
     c <- choose l h
     v <- choose 0.0 1_000_000_000.0
     pure $ day o h l c v
+
+instance semigroupDay :: Semigroup Day where
+  append a b = day 
+    (open a) 
+    (max (high a) (high b)) 
+    (min (low a) (low b)) 
+    (close b) 
+    (volume a + volume b)

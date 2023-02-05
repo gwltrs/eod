@@ -1,6 +1,7 @@
 module Indicators
   ( at
   , convex
+  , fibChunks
   )
   where
 
@@ -44,3 +45,6 @@ convex ns =
   in
     let x = f0 (l - 3) (d' (l - 2))
     in if x > 2 then x else 0
+
+fibChunks :: forall r s. RandomAccess r => Semigroup s => Int -> r s -> Array s
+fibChunks = undefined

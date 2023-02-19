@@ -39,10 +39,6 @@ slices n s0 =
 slices' :: forall a. Int -> Array a -> Array (Slice a)
 slices' n s = slices n (slice s)
 
--- mapSlices2 :: forall a b r. RandomAccess r => (a -> a -> b) -> r a -> Array b
--- mapSlices2 a b = []
-  --let inner i a b = if i < rLen r then [] else []
-
 uncurryRA :: forall a b r. RandomAccess r => (a -> a -> b) -> r a -> b
 uncurryRA f r = f (rAt 0 r) (rAt 1 r)
 

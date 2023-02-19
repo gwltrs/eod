@@ -17,7 +17,7 @@ import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
 import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE)
-import Indicators (convex, at)
+import Indicators (convex, at, fibChunks)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
 import Type.EODDay (toDay)
@@ -47,13 +47,7 @@ toDate = frc $ ymd 2023 1 12
 --     (&&) <$> isConvex <*> yesterdayIsLowest
 
 indicator :: Indicator (Maybe Int)
-indicator = 
-  let 
-    streak = ((filterMaybe (_ >= 4)) <<< Just <<< convex) <$> (avg <<$>> last 15)
-    avgAt i = avg <$> at i
-    reversed = lift2 lessThan (avgAt 1) (lift2 min (avgAt 0) (avgAt 2))
-  in
-    streak <<* (bToMU <$> reversed)
+indicator = pure Nothing
 
 
 main ∷ Effect Unit

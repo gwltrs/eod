@@ -1,5 +1,6 @@
 module Indicators
   ( at
+  , bullishReverse
   , convex
   , fibChunks
   )
@@ -21,18 +22,6 @@ import Utils (undefined)
 import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (Tuple3, tuple3, (/\))
 import Data.Unfoldable (unfoldr)
-
--- closes :: Indicator (Slice Number)
--- closes = indicator 0 (map $ unwrap >>> _.close)
-
--- day :: Indicator Day
--- day = indicator 1 frc
-
--- lastN :: forall a. Int -> Indicator a -> Indicator a
--- lastN n = (indicator n identity *> _)
-
--- sma :: Indicator (Slice Number -> Number)
--- sma = indicator 1 (const (\ns -> sum ns / (toNumber $ slen ns)))
 
 at :: Int -> Indicator Day
 at i = 
@@ -66,3 +55,10 @@ fibChunks r =
     mapRange (Tuple start end) = if start == (end - 1) then rAt start r else rAt start r <> mapRange (Tuple (start + 1) end)
   in
     mapRange <$> ranges
+
+bullishReverse :: forall r o. RandomAccess r => Ord o => r o -> Boolean
+bullishReverse r = a >= b && b < c
+  where 
+    a = rAt ((rLen r) - 3) r
+    b = rAt ((rLen r) - 2) r
+    c = rAt ((rLen r) - 1) r

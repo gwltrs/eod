@@ -20,7 +20,3 @@ forceableTests = suite "Indicator" do
     Assert.equal "c" (frc $ ["c"])
   test "force Slice" do
     Assert.equal "d" (frc $ slice ["d"])
-  -- test "force String" do
-  --   Assert.equal 'e' (frc "e")
-  --   Assert.equal 'e' (frc "et")
-  --   Assert.equal 'e' (frc "etc")

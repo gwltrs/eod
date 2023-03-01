@@ -25,14 +25,15 @@ import IO.Atom (getAPIKey, getURL)
 import Prim.Boolean (True)
 import Railroad (fuse, liftEffectE, toAffE, toRight)
 import Type.Alias (AffE, Ticker)
+import Type.Analysis (Analysis(..))
 import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
 import Type.EODDay (EODDay, eodDaysFromJSON, toDay)
-import Type.Indicator (Indicator, indicate, indicate', minimumInputLength)
+import Type.Indicator (Indicator, indicate, indicate', minIndInputLength)
 import Type.Day (Day, day, dayFromJSON)
 import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
-import Utils (slices', stail', filterMap)
-import Nested
+import Utils (slices', stail', filterMap, slastN', undefined)
+import NestedApplicative
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -61,6 +62,7 @@ getLiveDay sym = do
 getEODDaysAndLiveDay :: YMD -> Ticker -> AffE (Array Day)
 getEODDaysAndLiveDay date sym = do
   eodDays <- getEODDays date sym
+  --log' $ show $ slastN' 3 eodDays
   liveDay <- getLiveDay sym
   pure $ (toDay <$> eodDays) <> [liveDay]
 
@@ -79,18 +81,19 @@ logAffE a =
 delayE :: Number -> AffE Unit
 delayE seconds = ExceptT (Right <$> (delay $ Milliseconds $ seconds * 1000.0))
 
-logE :: String -> AffE Unit
-logE = log >>> toAffE
+log' :: String -> AffE Unit
+log' = log >>> toAffE
+
+analyzeHistory :: forall a b c. Ticker -> Analysis (Maybe a) a b -> (c -> b -> c) -> AffE c
+analyzeHistory = undefined
 
 findHistory :: forall a. Ord a => Show a => Ticker -> Indicator (Maybe a) -> AffE Unit
 findHistory ticker indicator = do
   days <- getEODDays (frc $ ymd 1900 1 1) ticker
-  slices' (minimumInputLength indicator) days
+  slices' (minIndInputLength indicator) days
     # filterMap (\s -> 
       let
-        ind :: Maybe a
         ind = join $ indicate indicator $ map toDay s
-        date :: String
         date = show $ _.date $ frc $ slast s
       in
         ind <#> (\i -> Tuple i date))
@@ -100,7 +103,7 @@ findHistory ticker indicator = do
     # fold
     # liftEffect
 
-findToday :: forall a. Ord a => YMD -> YMD -> Indicator Boolean -> AffE Unit
+findToday :: forall a. YMD -> YMD -> Indicator Boolean -> AffE Unit
 findToday fromDate toDate isGoodPick = 
   let 
     traverseStocks :: Slice String -> Array String -> AffE (Array String)
@@ -112,10 +115,11 @@ findToday fromDate toDate isGoodPick =
           `catchError` (const $ pure [])
         case indicate' isGoodPick days of 
           Nothing -> do
-            logE "network error/insufficient number of days"
+            log' "network error/insufficient number of days"
             traverseStocks (stail' remaining) matches
           (Just true) -> do
-            logE $ frc remaining
+            log' $ frc remaining
+            log' $ show $ slastN' 3 days
             traverseStocks (stail' remaining) (snoc matches (frc remaining))
           (Just false) -> do
             traverseStocks (stail' remaining) matches

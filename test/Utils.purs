@@ -11,7 +11,7 @@ import Test.QuickCheck (quickCheck, (<?>))
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Type.YMD as Y
-import Utils (sdrop, slastN, slices)
+import Utils (sdrop, slastN, slices, qualify)
 
 utilsTests :: Free TestF Unit
 utilsTests = suite "Utils" do
@@ -36,14 +36,6 @@ utilsTests = suite "Utils" do
     -- empty
     Assert.equal [] (slices 0 noUnits <#> sarray)
     Assert.equal [] (slices 1 noUnits <#> sarray)
-  -- test "mapSlices2" do
-  --   -- vowels
-  --   Assert.equal ([]::Array Int) (mapSlices2 (+) [])
-  --   Assert.equal [] (mapSlices2 (+) [0])
-  --   Assert.equal [1] (mapSlices2 (+) [0, 1])
-  --   Assert.equal [1, 3] (mapSlices2 (+) [0, 1, 2])
-  --   Assert.equal [1, 3, 5] (mapSlices2 (+) [0, 1, 2, 3])
-  --   Assert.equal [1, 3, 5, 7] (mapSlices2 (+) [0, 1, 2, 3, 4])
   test "slastN" do
     -- vowels
     Assert.equal [] (slastN 0 vowels # sarray)
@@ -86,6 +78,14 @@ utilsTests = suite "Utils" do
     -- empty
     Assert.equal [] (sdrop 0 noUnits # sarray)
     Assert.equal [] (sdrop 1 noUnits # sarray)
+  test "qualify" do
+    Assert.equal (Just $ Just 1) (qualify [] (Just 1))
+    Assert.equal (Just Nothing) (qualify [Just false] (Just 2))
+    Assert.equal (Just $ Just 3) (qualify [Just true] (Just 3))
+    Assert.equal (Just Nothing) (qualify [Just false, Just false] (Just 4))
+    Assert.equal (Just Nothing) (qualify [Just false, Just true] (Just 5))
+    Assert.equal (Just Nothing) (qualify [Just true, Just false] (Just 6))
+    Assert.equal (Just $ Just 7) (qualify [Just true, Just true] (Just 7))
 
 vowels :: Slice String
 vowels = stake 5 $ slice ["a", "e", "i", "o", "u", "x", "y", "z"]

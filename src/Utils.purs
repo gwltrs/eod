@@ -16,6 +16,7 @@ import Data.Unfoldable (unfoldr)
 import Forceable (frc)
 import Partial.Unsafe (unsafeCrashWith)
 import Control.Apply (lift2)
+import Data.Traversable
 
 --doubleApplySecond :: forall f g a b. Apply f => Apply g => f (g a) -> f (g b) -> f (g b)
 --doubleApplySecond a b = a *> (_ *> b)
@@ -73,3 +74,8 @@ bToMU true = Just unit
 muToB :: Maybe Unit -> Boolean
 muToB (Just unit) = true
 muToB Nothing = false
+
+qualify :: forall t m a. Traversable t => Applicative m => t (m Boolean) -> m a -> m (Maybe a)
+qualify bools value =
+  let f b v = if foldr (&&) true b then Just v else Nothing
+  in lift2 f (sequence bools) value

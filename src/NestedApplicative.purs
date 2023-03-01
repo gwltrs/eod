@@ -1,4 +1,4 @@
-module Nested where
+module NestedApplicative where
 
 import Prelude
 import Control.Apply (lift2, applyFirst, applySecond)

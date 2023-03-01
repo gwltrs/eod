@@ -8,7 +8,7 @@ import Data.Array (length)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.Either (Either(..))
-import Data.Maybe (Maybe(..))
+import Data.Maybe (Maybe(..), isJust)
 import Data.Ord (lessThan)
 import Data.Slice (Slice, slice)
 import Effect (Effect)
@@ -17,41 +17,36 @@ import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
 import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE)
-import Indicators (convex, at, fibChunks)
+import Indicators (convex, at, fibChunks, bullishReverse)
 import Railroad (fuse, launchAffE)
 import Type.Alias (AffE)
 import Type.EODDay (toDay)
 import Type.Indicator (Indicator, last)
-import Type.Day (Day, avg, close)
+import Type.Day (Day, avg, close, high, low, open)
 import Type.YMD (YMD(..), ymd)
-import Utils (slastN, slastN', filterMaybe, bToMU)
-import Nested
+import Utils (slastN, slastN', filterMaybe, bToMU, qualify)
+import NestedApplicative
 
 fromDate :: YMD
-fromDate = frc $ ymd 2022 12 2
+fromDate = frc $ ymd 2022 1 1
 
 toDate :: YMD
-toDate = frc $ ymd 2023 1 12
-
--- filter :: Indicator Boolean
--- filter = 
---   let 
---     isConvex = (_ >= 4) <$> (convex avg)
---     today = avg <$> day
---     yesterday = avg <$> day << 1
---     twoDaysAgo = avg <$> day << 2
---     todayAboveYesterday = (>) <$> today <*> yesterday
---     twoDaysAgoAboveYesterday = (>) <$> twoDaysAgo <*> yesterday
---     yesterdayIsLowest = (&&) <$> todayAboveYesterday <*> twoDaysAgoAboveYesterday
---   in
---     (&&) <$> isConvex <*> yesterdayIsLowest
+toDate = frc $ ymd 2023 2 27
 
 indicator :: Indicator (Maybe Int)
-indicator = pure Nothing
+indicator = 
+  let 
+    chunks = low <<$>> fibChunks <$> last 88
+    reversed = bullishReverse <$> chunks
+    convexStreak = convex <$> chunks
+    streakLongEnough = (_ >= 7) <$> convexStreak
+    isUpDay = let d = at 0 in lift2 (>) (close <$> d) (open <$> d) 
+  in
+    qualify [reversed, streakLongEnough, isUpDay] convexStreak
 
 
 main ∷ Effect Unit
 main = 
   --pure unit
-  --launchAffE $ findToday fromDate toDate indicator
-  launchAffE $ findHistory "SPY" indicator
+  launchAffE $ findToday fromDate toDate (isJust <$> indicator)
+  --launchAffE $ findHistory "intc" indicator

@@ -5,7 +5,9 @@ module Type.Day
   , day
   , dayFromJSON
   , fourPrice
-  , fourPrice
+  , high
+  , low
+  , open
   )
   where
 

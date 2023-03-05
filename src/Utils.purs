@@ -18,9 +18,6 @@ import Partial.Unsafe (unsafeCrashWith)
 import Control.Apply (lift2)
 import Data.Traversable
 
---doubleApplySecond :: forall f g a b. Apply f => Apply g => f (g a) -> f (g b) -> f (g b)
---doubleApplySecond a b = a *> (_ *> b)
-
 allTrue :: Array Boolean -> Boolean
 allTrue = foldr (&&) true
 

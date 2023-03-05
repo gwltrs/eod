@@ -12,6 +12,7 @@ import Test.Type.YMD (ymdTests)
 import Test.URL (urlTests)
 import Test.Unit.Main (runTest)
 import Test.Utils (utilsTests)
+import Test.Evaluators (evaluatorsTests)
 
 main :: Effect Unit
 main = runTest do
@@ -23,3 +24,4 @@ main = runTest do
   utilsTests
   indicatorTests
   forceableTests
+  evaluatorsTests

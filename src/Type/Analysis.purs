@@ -13,3 +13,6 @@ data Analysis a b c = Analysis (Indicator a) (Evaluator (b -> c))
 
 minAnalysisInputLength :: forall a b c. Analysis a b c -> Int
 minAnalysisInputLength (Analysis i e) = (minIndInputLength i) + (minEvalInputLength e)
+
+--analyze :: forall a b c. Analysis a b c -> Slice Day -> Maybe c
+--analyze = undefined

@@ -34,6 +34,9 @@ import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
 import Utils (slices', stail', filterMap, slastN', undefined)
 import NestedApplicative
+import Type.Evaluator (Evaluator(..))
+import Type.BacktestResult (BacktestResult(..))
+import Type.Analysis (minAnalysisInputLength)
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -84,8 +87,10 @@ delayE seconds = ExceptT (Right <$> (delay $ Milliseconds $ seconds * 1000.0))
 log' :: String -> AffE Unit
 log' = log >>> toAffE
 
-analyzeHistory :: forall a b c. Ticker -> Analysis (Maybe a) a b -> (c -> b -> c) -> AffE c
-analyzeHistory = undefined
+--backtestHistory :: forall a b c. Ticker -> Indicator (Maybe a) -> Evaluator (a -> Number) -> AffE (Array BacktestResult) 
+--backtestHistory ticker analysis accum = do
+--  days <- getEODDays (frc $ ymd 1900 1 1) ticker
+--  slices' (minAnalysisInputLength analysis) days
 
 findHistory :: forall a. Ord a => Show a => Ticker -> Indicator (Maybe a) -> AffE Unit
 findHistory ticker indicator = do

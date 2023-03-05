@@ -11,7 +11,6 @@ import Type.BulkDay (BulkDay, bulkDay, bulkDaysFromJSON, bulkDaysToJSON, isOptim
 import Type.EODDay (toDay)
 import Data.Newtype (unwrap)
 
-
 bulkDayTests :: Free TestF Unit
 bulkDayTests = suite "BulkDay" do
   test "bulkDaysFromJSON" do

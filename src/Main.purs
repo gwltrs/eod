@@ -31,7 +31,7 @@ fromDate :: YMD
 fromDate = frc $ ymd 2022 1 1
 
 toDate :: YMD
-toDate = frc $ ymd 2023 3 2 
+toDate = frc $ ymd 2023 3 6
 
 indicator :: Indicator (Maybe Int)
 indicator = 
@@ -48,5 +48,5 @@ indicator =
 main ∷ Effect Unit
 main = 
   --pure unit
-  --launchAffE $ findToday fromDate toDate (isJust <$> indicator)
-  launchAffE $ findHistory "atos" indicator
+  launchAffE $ findToday fromDate toDate (isJust <$> indicator)
+  --launchAffE $ findHistory "atos" indicator

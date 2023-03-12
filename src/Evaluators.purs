@@ -10,6 +10,7 @@ import Data.Number (pow, sqrt)
 import Utils (undefined)
 
 expectancy :: Array Number -> Number
+expectancy [] = 0.0
 expectancy rMultiples = (foldr (+) 0.0 rMultiples) / (toNumber $ length rMultiples)
 
 standardDeviation :: Array Number -> Number
@@ -23,6 +24,7 @@ standardDeviation ns =
     sqrt (diffs / n)
 
 systemQuality :: Array Number -> Number
+systemQuality [] = 0.0
 systemQuality rMultiples = 
   let 
     e = expectancy rMultiples

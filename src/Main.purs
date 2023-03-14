@@ -44,9 +44,8 @@ indicator =
   in
     qualify [reversed, streakLongEnough, isUpDay] convexStreak
 
-
 main ∷ Effect Unit
 main = 
   --pure unit
-  launchAffE $ findToday fromDate toDate (isJust <$> indicator)
-  --launchAffE $ findHistory "atos" indicator
+  --launchAffE $ findToday fromDate toDate (isJust <$> indicator)
+  launchAffE $ findHistory "atos" indicator

@@ -36,7 +36,7 @@ import Utils (slices', stail', filterMap, slastN', undefined)
 import NestedApplicative
 import Type.Evaluator (Evaluator(..))
 import Type.BacktestResult (BacktestResult(..))
-import Type.Analysis (minAnalysisInputLength)
+import Type.Analysis (Analysis(..), minAnalysisInputLength)
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -91,6 +91,9 @@ log' = log >>> toAffE
 --backtestHistory ticker analysis accum = do
 --  days <- getEODDays (frc $ ymd 1900 1 1) ticker
 --  slices' (minAnalysisInputLength analysis) days
+
+analyzeHistory :: forall a b c. Ticker -> Analysis a b c -> AffE c
+analyzeHistory ticker (Analysis ind eval init comb) = pure init
 
 findHistory :: forall a. Ord a => Show a => Ticker -> Indicator (Maybe a) -> AffE Unit
 findHistory ticker indicator = do

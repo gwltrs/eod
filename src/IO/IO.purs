@@ -4,7 +4,7 @@ import Prelude
 
 import Class.RandomAccess (rAt, rLen)
 import Control.Monad.Except (ExceptT(..), catchError, except, runExceptT)
-import Data.Array (filter, fold, snoc, sortWith, take, reverse)
+import Data.Array (fold, filter, snoc, sortWith, take, reverse)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.DateTime.Instant (fromDate)
@@ -13,7 +13,7 @@ import Data.Functor (voidLeft, voidRight)
 import Data.JSDate (toDate)
 import Data.Maybe (Maybe(..), fromMaybe, isJust)
 import Data.Number (remainder)
-import Data.Slice (Slice, shead, slast, slen, slice, stail)
+import Data.Slice (Slice, shead, slast, slen, slice, stail, stake)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..), fst, snd)
 import Effect (Effect)
@@ -32,11 +32,12 @@ import Type.Indicator (Indicator, indicate, indicate', minIndInputLength)
 import Type.Day (Day, day, dayFromJSON)
 import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
-import Utils (slices', stail', filterMap, slastN', undefined)
+import Utils (slices', stail', filterMap, slastN, slastN', undefined)
 import NestedApplicative
-import Type.Evaluator (Evaluator(..))
+import Type.Evaluator (Evaluator(..), evaluate, evaluate', minEvalInputLength)
 import Type.BacktestResult (BacktestResult(..))
 import Type.Analysis (Analysis(..), minAnalysisInputLength)
+import Data.Foldable as DF
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -92,8 +93,21 @@ log' = log >>> toAffE
 --  days <- getEODDays (frc $ ymd 1900 1 1) ticker
 --  slices' (minAnalysisInputLength analysis) days
 
-analyzeHistory :: forall a b c. Ticker -> Analysis a b c -> AffE c
-analyzeHistory ticker (Analysis ind eval init comb) = pure init
+analyzeHistory :: forall a b c. Monoid b => Ticker -> Analysis a b c -> AffE c
+analyzeHistory ticker analysis = 
+  let (Analysis ind eval finally) = analysis
+  in do
+    days <- getEODDays (frc $ ymd 1900 1 1) ticker
+    slices' (minAnalysisInputLength analysis) (map toDay days)
+      # filterMap (\s ->
+        let
+          i = join $ indicate ind (stake (minIndInputLength ind) s)
+          e = frc $ evaluate eval (slastN (minEvalInputLength eval) s)
+        in
+          e <$> i)
+      # fold
+      # finally
+      # pure
 
 findHistory :: forall a. Ord a => Show a => Ticker -> Indicator (Maybe a) -> AffE Unit
 findHistory ticker indicator = do
@@ -111,7 +125,7 @@ findHistory ticker indicator = do
     # fold
     # liftEffect
 
-findToday :: forall a. YMD -> YMD -> Indicator Boolean -> AffE Unit
+findToday :: YMD -> YMD -> Indicator Boolean -> AffE Unit
 findToday fromDate toDate isGoodPick = 
   let 
     traverseStocks :: Slice String -> Array String -> AffE (Array String)

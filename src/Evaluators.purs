@@ -8,27 +8,20 @@ import Data.Foldable (class Foldable, foldr)
 import Data.Ord (abs)
 import Data.Number (pow, sqrt)
 import Utils (undefined)
+import Type.Alias (RMultiple)
+import Type.Evaluator (Evaluator(..), first)
+import Type.Purchase (Purchase(..))
+import Type.Day (Day(..))
+import Forceable (frc)
+import Data.Slice (slast)
 
-expectancy :: Array Number -> Number
-expectancy [] = 0.0
-expectancy rMultiples = (foldr (+) 0.0 rMultiples) / (toNumber $ length rMultiples)
+type ExitStrategy = Evaluator (Purchase -> RMultiple)
 
-standardDeviation :: Array Number -> Number
-standardDeviation [] = 0.0
-standardDeviation ns = 
-  let
-    mean = foldr (+) 0.0 ns  / (toNumber $ length ns) 
-    diffs = ns <#> (\x -> pow (x - mean) 2.0) # foldr (+) 0.0
-    n = (toNumber $ length ns)
-  in 
-    sqrt (diffs / n)
+at :: Int -> Evaluator Day
+at i = 
+  let i' = max 0 i
+  in (frc <<< slast) <$> first (1 + i')
 
-systemQuality :: Array Number -> Number
-systemQuality [] = 0.0
-systemQuality rMultiples = 
-  let 
-    e = expectancy rMultiples
-    std = standardDeviation rMultiples
-    sqrtN = sqrt $ toNumber $ length rMultiples
-  in
-    (e / std) * sqrtN
+-- account for gap downs
+maxPreviousLow :: ExitStrategy
+maxPreviousLow = pure undefined

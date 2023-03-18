@@ -10,3 +10,4 @@ type APIKey = String
 type EffectE a = ExceptT Error Effect a
 type Ticker = String
 type URL = String
+type RMultiple = Number

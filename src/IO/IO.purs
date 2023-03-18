@@ -88,12 +88,7 @@ delayE seconds = ExceptT (Right <$> (delay $ Milliseconds $ seconds * 1000.0))
 log' :: String -> AffE Unit
 log' = log >>> toAffE
 
---backtestHistory :: forall a b c. Ticker -> Indicator (Maybe a) -> Evaluator (a -> Number) -> AffE (Array BacktestResult) 
---backtestHistory ticker analysis accum = do
---  days <- getEODDays (frc $ ymd 1900 1 1) ticker
---  slices' (minAnalysisInputLength analysis) days
-
-analyzeHistory :: forall a b c. Monoid b => Ticker -> Analysis a b c -> AffE c
+analyzeHistory :: forall a b c. Ticker -> Analysis a b c -> AffE c
 analyzeHistory ticker analysis = 
   let (Analysis ind eval finally) = analysis
   in do
@@ -105,7 +100,6 @@ analyzeHistory ticker analysis =
           e = frc $ evaluate eval (slastN (minEvalInputLength eval) s)
         in
           e <$> i)
-      # fold
       # finally
       # pure
 

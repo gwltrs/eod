@@ -11,6 +11,10 @@ import Type.Day (Day, day, fourPrice)
 import Data.Maybe (Maybe(..))
 import Type.Evaluator (evaluate, evaluate')
 import Evaluators (at, maxPreviousLow)
+import Type.Purchase (Purchase, mkPurchase)
+import Forceable (($!), frc)
+import Type.Alias (RMultiple)
+import NestedApplicative ((<<*>>))
 
 evaluatorsTests :: Free TestF Unit
 evaluatorsTests = suite "Evaluators" do
@@ -22,7 +26,12 @@ evaluatorsTests = suite "Evaluators" do
     Assert.equal (Just $ fourPrice 3.0)   (evaluate' (at 1) $ [doji, fourPrice 3.0])
     Assert.equal Nothing                  (evaluate' (at 2) $ [doji, fourPrice 3.0])
   test "maxPreviousLow" do
-    Assert.equal 1 2
+    Assert.equal 0.0 (maxPreviousLow' (frc $ mkPurchase 2.0 1.0) [])
+
+maxPreviousLow' :: Purchase -> Array Day -> RMultiple
+-- evaluate' :: forall a. Evaluator a -> Array Day -> Maybe a
+-- maxPreviousLow :: Evaluator (Purchase -> RMultiple)
+maxPreviousLow' p a = frc $ ((evaluate' maxPreviousLow a) <*> (Just p))
 
 withinHundredth :: Number -> Number -> Test
 withinHundredth expected actual =

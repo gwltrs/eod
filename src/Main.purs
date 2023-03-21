@@ -29,7 +29,7 @@ import NestedApplicative
 import Type.Analysis (Analysis(..))
 import Evaluators (maxPreviousLow)
 import Type.Evaluator (Evaluator(..))
-import Type.Purchase (Purchase(..))
+import Type.Purchase (Purchase, mkPurchase)
 import SystemQuality (systemQuality, SQN)
 
 fromDate :: YMD
@@ -37,9 +37,6 @@ fromDate = frc $ ymd 2022 1 1
 
 toDate :: YMD
 toDate = frc $ ymd 2023 3 6
-
-mkPurchase :: Number -> Number -> Purchase
-mkPurchase buy stop = Purchase { buyPrice: buy, stopPrice: stop }
 
 indicator :: Indicator (Maybe Purchase)
 indicator = 
@@ -49,7 +46,7 @@ indicator =
     convexStreak = convex <$> chunks
     streakLongEnough = (_ >= 7) <$> convexStreak
     isUpDay = let d = at 0 in lift2 (>) (close <$> d) (open <$> d) 
-    purchase = mkPurchase <$> (close <$> at 0) <*> (low <$> at 0)
+    purchase = (\a b -> frc $ mkPurchase a b) <$> (close <$> at 0) <*> (low <$> at 0)
   in
     qualify [reversed, streakLongEnough, isUpDay] purchase
 

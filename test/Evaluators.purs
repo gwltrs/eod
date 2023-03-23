@@ -32,6 +32,7 @@ evaluatorsTests = suite "Evaluators" do
     withinHundredth 0.0 (maxPreviousLow' (mkP 2.0 1.0) [fourPrice 2.0])
     withinHundredth (-1.0) (maxPreviousLow' (mkP 2.0 1.0) [fourPrice 1.0])
     withinHundredth (-2.0) (maxPreviousLow' (mkP 2.0 1.0) [fourPrice 0.0])
+    withinHundredth (-0.2) (maxPreviousLow' (mkP 10.0 5.0) [day' 9 11 7 8, day' 12 13 14 15])
 
 maxPreviousLow' :: Purchase -> Array Day -> RMultiple
 maxPreviousLow' p a = 
@@ -41,6 +42,9 @@ maxPreviousLow' p a =
 
 mkP :: Number -> Number -> Purchase
 mkP buy stop = frc $ mkPurchase buy stop
+
+day' :: Int -> Int -> Int -> Int -> Day
+day' o h l c = day (toNumber o) (toNumber h) (toNumber l) (toNumber c) 1.0
 
 withinHundredth :: Number -> Number -> Test
 withinHundredth expected actual =

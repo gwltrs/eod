@@ -27,21 +27,32 @@ evaluatorsTests = suite "Evaluators" do
     Assert.equal (Just $ fourPrice 3.0)   (evaluate' (at 1) $ [doji, fourPrice 3.0])
     Assert.equal Nothing                  (evaluate' (at 2) $ [doji, fourPrice 3.0])
   test "maxPreviousLow" do
-    withinHundredth 0.0 (maxPreviousLow' (mkP 2.0 1.0) [])
-    withinHundredth 1.0 (maxPreviousLow' (mkP 2.0 1.0) [fourPrice 3.0])
-    withinHundredth 0.0 (maxPreviousLow' (mkP 2.0 1.0) [fourPrice 2.0])
-    withinHundredth (-1.0) (maxPreviousLow' (mkP 2.0 1.0) [fourPrice 1.0])
-    withinHundredth (-2.0) (maxPreviousLow' (mkP 2.0 1.0) [fourPrice 0.0])
-    withinHundredth (-0.2) (maxPreviousLow' (mkP 10.0 5.0) [day' 9 11 7 8, day' 12 13 14 15])
+    
+    withinHundredth 0.0 (maxPreviousLow' 0 (mkP 2 1) [])
 
-maxPreviousLow' :: Purchase -> Array Day -> RMultiple
-maxPreviousLow' p a = 
-  case (evaluate' maxPreviousLow a) <*> (Just p) of
+    withinHundredth (-1.5) (maxPreviousLow' 1 (mkP 12 10) [day' 9 11 7 8])
+    withinHundredth (-1.0) (maxPreviousLow' 1 (mkP 12 10) [day' 11 12 10 11])
+    withinHundredth (-1.0) (maxPreviousLow' 1 (mkP 12 10) [day' 11 12 9 11])
+    withinHundredth 0.5 (maxPreviousLow' 1 (mkP 12 10) [day' 11 13 11 13])
+
+    withinHundredth (-1.5) (maxPreviousLow' 2 (mkP 12 10) [day' 9 11 7 8, day1234])
+    withinHundredth (-1.0) (maxPreviousLow' 2 (mkP 12 10) [day' 11 12 10 11, day1234])
+    withinHundredth (-1.0) (maxPreviousLow' 2 (mkP 12 10) [day' 11 12 9 11, day1234])
+
+    withinHundredth 1.5 (maxPreviousLow' 2 (mkP 12 10) [day' 11 13 11 13, day' 12 13 14 15])
+    withinHundredth (-1.5) (maxPreviousLow' 2 (mkP 12 10) [day' 11 13 11 13, day' 9 15 9 15])
+    withinHundredth (-0.5) (maxPreviousLow' 3 (mkP 12 10) [day' 11 13 11 13, day' 12 15 5 15, day1234])
+    withinHundredth 0.0 (maxPreviousLow' 3 (mkP 12 10) [day' 11 13 11 13, day' 12 14 12 14, day' 13 14 10 13]) 
+    withinHundredth 2.0 (maxPreviousLow' 3 (mkP 12 10) [day' 11 13 11 13, day' 12 14 12 14, day' 13 14 13 16]) 
+    
+maxPreviousLow' :: Int -> Purchase -> Array Day -> RMultiple
+maxPreviousLow' n p a = 
+  case (evaluate' (maxPreviousLow n) a) <*> (Just p) of
     (Just r) -> r
     Nothing -> unsafeCrashWith "maxPreviousLow' returned Nothing"
 
-mkP :: Number -> Number -> Purchase
-mkP buy stop = frc $ mkPurchase buy stop
+mkP :: Int -> Int -> Purchase
+mkP buy stop = frc $ mkPurchase (toNumber buy) (toNumber stop)
 
 day' :: Int -> Int -> Int -> Int -> Day
 day' o h l c = day (toNumber o) (toNumber h) (toNumber l) (toNumber c) 1.0
@@ -51,6 +62,9 @@ withinHundredth expected actual =
   Assert.assert 
     ("Error: expected " <> show expected <> ", got " <> show actual)
     (eqAbsolute (Tolerance 0.01) expected actual)
+
+day1234 :: Day
+day1234 = day' 1 2 3 4
 
 doji :: Day
 doji = day 10.0 12.0 8.0 10.0 1000.0

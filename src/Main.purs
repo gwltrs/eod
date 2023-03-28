@@ -51,7 +51,7 @@ indicator =
     qualify [reversed, streakLongEnough, isUpDay] purchase
 
 evaluator :: Evaluator (Purchase -> Number)
-evaluator = maxPreviousLow
+evaluator = maxPreviousLow 20
 
 sqnAnalysis :: Analysis Purchase RMultiple SQN
 sqnAnalysis = Analysis indicator evaluator systemQuality

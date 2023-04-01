@@ -34,7 +34,7 @@ systemQuality [] = 0.0
 systemQuality rMultiples = 
   let 
     e = expectancy rMultiples
-    std = standardDeviation rMultiples
+    std = max 1.0 (standardDeviation rMultiples)
     sqrtN = sqrt $ toNumber $ length rMultiples
   in
     (e / std) * sqrtN

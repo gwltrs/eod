@@ -16,7 +16,7 @@ import Effect.Aff (Aff, Error, launchAff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
-import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE, log', analyzeHistory)
+import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE, log', analyzeHistory, analyzeHistories)
 import Railroad (fuse, launchAffE, launchAffE)
 import Type.Alias (RMultiple)
 import Type.EODDay (toDay)
@@ -31,6 +31,7 @@ import Evaluators (maxPreviousLow)
 import Type.Evaluator (Evaluator(..))
 import Type.Purchase (Purchase, mkPurchase)
 import SystemQuality (systemQuality, SQN)
+import Data.String.Unsafe (charAt)
 
 fromDate :: YMD
 fromDate = frc $ ymd 2022 1 1
@@ -51,7 +52,7 @@ indicator =
     qualify [reversed, streakLongEnough, isUpDay] purchase
 
 evaluator :: Evaluator (Purchase -> Number)
-evaluator = maxPreviousLow 20
+evaluator = maxPreviousLow 10
 
 sqnAnalysis :: Analysis Purchase RMultiple SQN
 sqnAnalysis = Analysis indicator evaluator systemQuality
@@ -61,7 +62,7 @@ main =
   --pure unit
   --launchAffE $ findToday fromDate toDate (isJust <$> indicator)
   --launchAffE $ findHistory "atos" indicator
-  analyzeHistory "ATOS" sqnAnalysis
+  analyzeHistories (\t -> charAt 0 t == 'E') sqnAnalysis
     <#> (\sqn -> "System quality number: " <> show sqn)
     >>= log'
     # launchAffE

@@ -23,10 +23,6 @@ at i =
   let i' = max 0 i
   in (frc <<< slast) <$> first (1 + i')
 
--- account for gap downs
---maxPreviousLow :: ExitStrategy
---maxPreviousLow = pure undefined
-
 maxPreviousLow :: Int -> ExitStrategy
 maxPreviousLow n = 
   let

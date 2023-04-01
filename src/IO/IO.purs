@@ -35,9 +35,9 @@ import URL (bulkURL, eodURL, liveURL)
 import Utils (slices', stail', filterMap, slastN, slastN', undefined)
 import NestedApplicative
 import Type.Evaluator (Evaluator(..), evaluate, evaluate', minEvalInputLength)
-import Type.BacktestResult (BacktestResult(..))
 import Type.Analysis (Analysis(..), minAnalysisInputLength)
 import Data.Foldable as DF
+import Debug (spy)
 
 getBulkDays :: YMD -> AffE (Array BulkDay)
 getBulkDays date = do
@@ -45,11 +45,8 @@ getBulkDays date = do
   res <- getURL $ bulkURL key date
   except $ toRight (error "Failed to parse bulk days JSON") $ sortWith _.code <$> filter isOptimalBulkDay <$> bulkDaysFromJSON res
 
---readBulkDays :: Date -> AffE (Array BulkDay)
---readBulkDays date = 
-
---writeBulkDays :: Date -> Array BulkDay -> AffE Unit
---writeBulkDays date arr = 
+getTickers :: YMD -> AffE (Array Ticker)
+getTickers date = _.code <<$>> getBulkDays date
 
 getEODDays :: YMD -> Ticker -> AffE (Array EODDay)
 getEODDays date sym = do
@@ -70,12 +67,8 @@ getEODDaysAndLiveDay date sym = do
   liveDay <- getLiveDay sym
   pure $ (toDay <$> eodDays) <> [liveDay]
 
-cacheAffE :: forall a b.  (a -> AffE b) -> (a -> b -> AffE Unit) -> (a -> AffE b) -> (a -> AffE b)
-cacheAffE getCache setCache getData = (\a -> 
-  runExceptT (getCache a) >>= (\e ->
-    case e of
-      Left _ -> getData a >>= (\d -> (setCache a d) *> (pure d)) # runExceptT
-      _ -> pure e ) # ExceptT )
+--recentTradingDate :: AffE YMD
+--recentTradingDate = 
 
 logAffE :: forall a. Show a => AffE a -> AffE a
 logAffE a = 
@@ -88,9 +81,9 @@ delayE seconds = ExceptT (Right <$> (delay $ Milliseconds $ seconds * 1000.0))
 log' :: String -> AffE Unit
 log' = log >>> toAffE
 
-analyzeHistory :: forall a b c. Ticker -> Analysis a b c -> AffE c
-analyzeHistory ticker analysis = 
-  let (Analysis ind eval finally) = analysis
+processHistory :: forall a b c. Ticker -> Analysis a b c -> AffE (Array b)
+processHistory ticker analysis = 
+  let (Analysis ind eval _) = analysis
   in do
     days <- getEODDays (frc $ ymd 1900 1 1) ticker
     slices' (minAnalysisInputLength analysis) (map toDay days)
@@ -100,8 +93,21 @@ analyzeHistory ticker analysis =
           e = frc $ evaluate eval (slastN (minEvalInputLength eval) s)
         in
           e <$> i)
-      # finally
       # pure
+
+analyzeHistory :: forall a b c. Ticker -> Analysis a b c -> AffE c
+analyzeHistory ticker analysis = 
+  let (Analysis _ _ finally) = analysis
+  in finally <$> processHistory ticker analysis
+
+analyzeHistories :: forall a b c. (Ticker -> Boolean) -> Analysis a b c -> AffE c
+analyzeHistories tickerFilter analysis = 
+  let (Analysis ind eval finally) = analysis
+  in do
+    tickers :: Array String <- getTickers (frc $ ymd 2023 3 31)
+      <#> filter tickerFilter
+    processed :: Array (Array b) <- sequence $ (\t -> processHistory t analysis) <$> (spy "tickers" tickers)
+    pure $ finally $ join processed
 
 findHistory :: forall a. Ord a => Show a => Ticker -> Indicator (Maybe a) -> AffE Unit
 findHistory ticker indicator = do

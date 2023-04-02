@@ -52,7 +52,7 @@ maxPreviousLow' n p a =
     Nothing -> unsafeCrashWith "maxPreviousLow' returned Nothing"
 
 mkP :: Int -> Int -> Purchase
-mkP buy stop = frc $ mkPurchase (toNumber buy) (toNumber stop)
+mkP buy stop = frc $ mkPurchase (toNumber buy) (toNumber stop) 0.0
 
 day' :: Int -> Int -> Int -> Int -> Day
 day' o h l c = day (toNumber o) (toNumber h) (toNumber l) (toNumber c) 1.0

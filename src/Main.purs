@@ -47,7 +47,8 @@ indicator =
     convexStreak = convex <$> chunks
     streakLongEnough = (_ >= 7) <$> convexStreak
     isUpDay = let d = at 0 in lift2 (>) (close <$> d) (open <$> d) 
-    purchase = (\a b -> frc $ mkPurchase a b) <$> (close <$> at 0) <*> (low <$> at 0)
+    priority = pure 0.0
+    purchase = (\a b c -> frc $ mkPurchase a b c) <$> (close <$> at 0) <*> (low <$> at 0) <*> priority
   in
     qualify [reversed, streakLongEnough, isUpDay] purchase
 
@@ -62,7 +63,7 @@ main =
   --pure unit
   --launchAffE $ findToday fromDate toDate (isJust <$> indicator)
   --launchAffE $ findHistory "atos" indicator
-  analyzeHistories (\t -> charAt 0 t == 'E') sqnAnalysis
+  analyzeHistories (\t -> charAt 0 t == 'Z') sqnAnalysis
     <#> (\sqn -> "System quality number: " <> show sqn)
     >>= log'
     # launchAffE

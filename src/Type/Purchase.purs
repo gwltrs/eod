@@ -15,6 +15,9 @@ buyPrice (Purchase obj) = obj.buyPrice
 stopPrice :: Purchase -> Number
 stopPrice (Purchase obj) = obj.stopPrice
 
+priority :: Purchase -> Number
+priority (Purchase obj) = obj.priority
+
 newtype Purchase = Purchase 
   { buyPrice :: Number
   , stopPrice :: Number 

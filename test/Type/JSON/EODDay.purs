@@ -1,4 +1,4 @@
-module Test.Type.EODDay where
+module Test.Type.JSON.EODDay where
 
 import Prelude
 
@@ -7,7 +7,7 @@ import Data.Maybe (Maybe(..))
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Test.Value (aaplAmznBulkDays, aaplAmznBulkDaysJSON, aaplAmznEODDays, aaplBulkDay)
-import Type.EODDay (eodDaysFromJSON, eodDaysToJSON, toDay)
+import Type.JSON.EODDay (eodDaysFromJSON, eodDaysToJSON)
 
 eodDayTests :: Free TestF Unit
 eodDayTests = suite "EODDay" do

@@ -3,8 +3,8 @@ module Test.Value where
 import Prelude
 
 import Forceable (frc)
-import Type.BulkDay (BulkDay, toEODDay)
-import Type.EODDay (EODDay)
+import Type.JSON.BulkDay (BulkDay, toEODDay)
+import Type.JSON.EODDay (EODDay)
 import Type.YMD (ymd)
 
 aaplBulkDay :: BulkDay

@@ -1,4 +1,4 @@
-module Type.EODDay (EODDay, eodDay, eodDaysFromJSON, toDay, eodDaysToJSON) where
+module Type.JSON.EODDay (EODDay(..), eodDay, eodDaysFromJSON, eodDaysToJSON) where
 
 import Prelude
 
@@ -8,12 +8,19 @@ import Data.Maybe (Maybe)
 import Data.Traversable (traverse)
 import Foreign.Object (lookup)
 import Railroad (rightToMaybe)
-import Type.Day (Day(..))
 import Type.YMD (YMD(..))
 import Type.YMD as Y
 import Utils (toJSONArray)
+import Type.Alias (Ticker)
 
-type EODDay = { date :: YMD, open :: Number, high :: Number, low :: Number, close :: Number, volume :: Number }
+type EODDay = 
+  { date :: YMD
+  , open :: Number
+  , high :: Number
+  , low :: Number
+  , close :: Number
+  , volume :: Number
+  }
 
 eodDay :: YMD -> Number -> Number -> Number -> Number -> Number -> EODDay
 eodDay = { date: _, open: _, high: _, low: _, close: _, volume: _ }
@@ -44,6 +51,3 @@ eodDayToJSON day =
 
 eodDaysToJSON :: Array EODDay -> String
 eodDaysToJSON = toJSONArray eodDayToJSON
-
-toDay :: EODDay -> Day
-toDay d = Day { open: d.open, high: d.high, low: d.low, close: d.close, volume: d.volume }

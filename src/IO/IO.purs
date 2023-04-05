@@ -26,10 +26,11 @@ import Prim.Boolean (True)
 import Railroad (fuse, liftEffectE, toAffE, toRight)
 import Type.Alias (AffE, Ticker)
 import Type.Analysis (Analysis(..))
-import Type.BulkDay (BulkDay, bulkDaysFromJSON, isOptimalBulkDay)
-import Type.EODDay (EODDay, eodDaysFromJSON, toDay)
+import Type.JSON.BulkDay (BulkDay(..), bulkDaysFromJSON, isOptimalBulkDay)
+import Type.JSON.EODDay (EODDay, eodDaysFromJSON)
+import Type.JSON.LiveDay (liveDayFromJSON)
 import Type.Indicator (Indicator, indicate, indicate', minIndInputLength)
-import Type.Day (Day, day, dayFromJSON)
+import Type.Day (Day, day, fromBulkDay, fromLiveDay, fromEODDay, ticker)
 import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
 import Utils (slices', stail', filterMap, slastN, slastN', undefined)
@@ -39,33 +40,37 @@ import Type.Analysis (Analysis(..), minAnalysisInputLength)
 import Data.Foldable as DF
 import Debug (spy)
 
-getBulkDays :: YMD -> AffE (Array BulkDay)
+getToday :: AffE YMD
+getToday = pure $ frc $ ymd 2023 4 5
+
+getBulkDays :: YMD -> AffE (Array Day)
 getBulkDays date = do
   key <- liftEffectE getAPIKey
   res <- getURL $ bulkURL key date
-  except $ toRight (error "Failed to parse bulk days JSON") $ sortWith _.code <$> filter isOptimalBulkDay <$> bulkDaysFromJSON res
+  except $ toRight (error "Failed to parse bulk days JSON") $ fromBulkDay <<$>> sortWith _.code <$> filter isOptimalBulkDay <$> bulkDaysFromJSON res
 
 getTickers :: YMD -> AffE (Array Ticker)
-getTickers date = _.code <<$>> getBulkDays date
+getTickers date = ticker <<$>> getBulkDays date
 
-getEODDays :: YMD -> Ticker -> AffE (Array EODDay)
+getEODDays :: YMD -> Ticker -> AffE (Array Day)
 getEODDays date sym = do
   key <- liftEffectE getAPIKey
   res <- getURL $ eodURL key date sym
-  except $ toRight (error "Failed to parse eod days JSON") $ eodDaysFromJSON res
+  except $ toRight (error "Failed to parse eod days JSON") $ (fromEODDay sym) <<$>> eodDaysFromJSON res
 
 getLiveDay :: Ticker -> AffE Day
 getLiveDay sym = do
+  today :: YMD <- getToday
   key <- liftEffectE getAPIKey
   res <- getURL $ liveURL key sym
-  except $ toRight (error "Failed to parse live day JSON") $ dayFromJSON res
+  except $ toRight (error "Failed to parse live day JSON") $ (fromLiveDay sym today) <$> liveDayFromJSON res
 
 getEODDaysAndLiveDay :: YMD -> Ticker -> AffE (Array Day)
 getEODDaysAndLiveDay date sym = do
   eodDays <- getEODDays date sym
   --log' $ show $ slastN' 3 eodDays
-  liveDay <- getLiveDay sym
-  pure $ (toDay <$> eodDays) <> [liveDay]
+  liveDay :: Day <- getLiveDay sym
+  pure $ (eodDays <> [liveDay])
 
 --recentTradingDate :: AffE YMD
 --recentTradingDate = 
@@ -86,7 +91,7 @@ processHistory ticker analysis =
   let (Analysis ind eval _) = analysis
   in do
     days <- getEODDays (frc $ ymd 1900 1 1) ticker
-    slices' (minAnalysisInputLength analysis) (map toDay days)
+    slices' (minAnalysisInputLength analysis) days
       # filterMap (\s ->
         let
           i = join $ indicate ind (stake (minIndInputLength ind) s)
@@ -115,7 +120,7 @@ findHistory ticker indicator = do
   slices' (minIndInputLength indicator) days
     # filterMap (\s -> 
       let
-        ind = join $ indicate indicator $ map toDay s
+        ind = join $ indicate indicator $ map (fromEODDay ticker) s
         date = show $ _.date $ frc $ slast s
       in
         ind <#> (\i -> Tuple i date))

@@ -14,6 +14,7 @@ import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Type.Indicator (Indicator, indicate, indicate')
 import Type.Day (Day, day, avg, fourPrice, close)
+import Type.YMD (ymd)
 
 indicatorTests :: Free TestF Unit
 indicatorTests = suite "Indicator" do
@@ -121,7 +122,7 @@ indicatorTests = suite "Indicator" do
     Assert.equal false (bullishReverse [7, 7, 7, 7, 7, 7, 7, 3, 3, 3])
 
 doji :: Day
-doji = day 10.0 12.0 8.0 10.0 1000.0
+doji = day "AAPL" (frc $ ymd 1900 1 1) 10.0 12.0 8.0 10.0 1000.0
 
 fourPrices1to10 :: Array Day
 fourPrices1to10 = fourPrice <$> toNumber <$> range 1 10

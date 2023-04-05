@@ -3,6 +3,12 @@ module Type.Purchase (Purchase, mkPurchase, buyPrice, stopPrice) where
 import Prelude
 import Data.Maybe (Maybe(..))
 
+newtype Purchase = Purchase 
+  { buyPrice :: Number
+  , stopPrice :: Number 
+  , priority :: Number
+  }
+
 mkPurchase :: Number -> Number -> Number -> Maybe Purchase
 mkPurchase buy stop priority = 
   if buy >= stop 
@@ -18,8 +24,3 @@ stopPrice (Purchase obj) = obj.stopPrice
 priority :: Purchase -> Number
 priority (Purchase obj) = obj.priority
 
-newtype Purchase = Purchase 
-  { buyPrice :: Number
-  , stopPrice :: Number 
-  , priority :: Number
-  }

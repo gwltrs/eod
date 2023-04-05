@@ -16,6 +16,7 @@ import Forceable (($!), frc)
 import Type.Alias (RMultiple)
 import NestedApplicative ((<<*>>))
 import Partial.Unsafe (unsafeCrashWith)
+import Type.YMD (ymd)
 
 evaluatorsTests :: Free TestF Unit
 evaluatorsTests = suite "Evaluators" do
@@ -55,7 +56,7 @@ mkP :: Int -> Int -> Purchase
 mkP buy stop = frc $ mkPurchase (toNumber buy) (toNumber stop) 0.0
 
 day' :: Int -> Int -> Int -> Int -> Day
-day' o h l c = day (toNumber o) (toNumber h) (toNumber l) (toNumber c) 1.0
+day' o h l c = day "AAPL" (frc $ ymd 1900 1 1) (toNumber o) (toNumber h) (toNumber l) (toNumber c) 1.0
 
 withinHundredth :: Number -> Number -> Test
 withinHundredth expected actual =
@@ -67,4 +68,4 @@ day1234 :: Day
 day1234 = day' 1 2 3 4
 
 doji :: Day
-doji = day 10.0 12.0 8.0 10.0 1000.0
+doji = day "AAPL" (frc $ ymd 1900 1 1) 10.0 12.0 8.0 10.0 1000.0

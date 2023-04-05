@@ -1,4 +1,4 @@
-module Type.BulkDay (BulkDay, bulkDay, bulkDaysFromJSON, bulkDaysToJSON, isOptimalBulkDay, toEODDay) where
+module Type.JSON.BulkDay (BulkDay(..), bulkDay, bulkDaysFromJSON, bulkDaysToJSON, isOptimalBulkDay, toEODDay) where
 
 import Prelude
 
@@ -10,12 +10,21 @@ import Data.Traversable (traverse)
 import Foreign.Object (lookup)
 import Railroad (rightToMaybe)
 import Test.QuickCheck (class Arbitrary, arbitrary)
-import Type.EODDay (EODDay)
+import Type.JSON.EODDay (EODDay)
 import Type.YMD (YMD(..))
 import Type.YMD as Y
 import Utils (allTrue, isAlphaStr, toJSONArray)
+import Type.Alias (Ticker)
 
-type BulkDay = { code :: String, date :: YMD, open :: Number, high :: Number, low :: Number, close :: Number, volume :: Number }
+type BulkDay = 
+  { code :: Ticker
+  , date :: YMD
+  , open :: Number
+  , high :: Number
+  , low :: Number
+  , close :: Number
+  , volume :: Number
+  }
 
 bulkDay :: String -> YMD -> Number -> Number -> Number -> Number -> Number -> BulkDay
 bulkDay = { code: _, date: _, open: _, high: _, low: _, close: _, volume: _ }

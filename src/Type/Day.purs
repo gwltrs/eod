@@ -8,6 +8,7 @@ module Type.Day
   , low
   , open
   , ticker
+  , date
   , fromBulkDay
   , fromEODDay
   , fromLiveDay

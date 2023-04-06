@@ -30,7 +30,7 @@ import Type.JSON.BulkDay (BulkDay(..), bulkDaysFromJSON, isOptimalBulkDay)
 import Type.JSON.EODDay (EODDay, eodDaysFromJSON)
 import Type.JSON.LiveDay (liveDayFromJSON)
 import Type.Indicator (Indicator, indicate, indicate', minIndInputLength)
-import Type.Day (Day, day, fromBulkDay, fromLiveDay, fromEODDay, ticker)
+import Type.Day (Day, date, day, fromBulkDay, fromLiveDay, fromEODDay, ticker)
 import Type.YMD (YMD(..), ymd)
 import URL (bulkURL, eodURL, liveURL)
 import Utils (slices', stail', filterMap, slastN, slastN', undefined)
@@ -116,14 +116,16 @@ analyzeHistories tickerFilter analysis =
 
 findHistory :: forall a. Ord a => Show a => Ticker -> Indicator (Maybe a) -> AffE Unit
 findHistory ticker indicator = do
-  days <- getEODDays (frc $ ymd 1900 1 1) ticker
+  days :: Array Day <- getEODDays (frc $ ymd 1900 1 1) ticker
   slices' (minIndInputLength indicator) days
     # filterMap (\s -> 
       let
-        ind = join $ indicate indicator $ map (fromEODDay ticker) s
-        date = show $ _.date $ frc $ slast s
+        ind :: Maybe a
+        ind = join $ indicate indicator s-- $ map (fromEODDay ticker) s
+        date_ :: String
+        date_ = show $ date $ frc $ slast s
       in
-        ind <#> (\i -> Tuple i date))
+        ind <#> (\i -> Tuple i date_))
     # sortWith fst
     # reverse
     # map (show >>> log)
@@ -151,6 +153,6 @@ findToday fromDate toDate isGoodPick =
           (Just false) -> do
             traverseStocks (stail' remaining) matches
   in do
-    syms <- getBulkDays toDate <<#>> _.code
+    syms <- getBulkDays toDate <<#>> ticker
     picks <- traverseStocks (slice syms) []
     toAffE $ log $ show picks

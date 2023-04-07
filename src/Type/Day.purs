@@ -48,13 +48,13 @@ day :: Ticker -> YMD -> Number -> Number -> Number -> Number -> Number -> Day
 day t d o h l c v = Day { ticker: t, date: d, open: o, high: h, low: l, close: c, volume: v }
 
 fromEODDay :: Ticker -> EODDay -> Day
-fromEODDay = undefined
+fromEODDay t ed = day t ed.date ed.open ed.high ed.low ed.close ed.volume
 
 fromBulkDay :: BulkDay -> Day
-fromBulkDay = undefined
+fromBulkDay bd = day bd.code bd.date bd.open bd.high bd.low bd.close bd.volume
 
 fromLiveDay :: Ticker -> YMD -> LiveDay -> Day
-fromLiveDay = undefined
+fromLiveDay t y ld = day t y ld.open ld.high ld.low ld.close ld.volume
 
 ticker :: Day -> Ticker
 ticker (Day d) = d.ticker

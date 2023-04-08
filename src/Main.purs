@@ -63,7 +63,7 @@ main =
   --pure unit
   --launchAffE $ findToday fromDate toDate (isJust <$> indicator)
   --launchAffE $ findHistory "atos" indicator
-  analyzeHistories (const true) sqnAnalysis
+  analyzeHistories (\t -> charAt 0 t == 'Z') sqnAnalysis
     <#> (\sqn -> "System quality number: " <> show sqn)
     >>= (AE.liftEffect <<< log)
-    # AE.launch
+    # AE.launch (liftEffect <<< log <<< show)

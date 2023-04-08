@@ -4,16 +4,13 @@ import Prelude
 
 import Control.Apply ((*>))
 import Control.Monad.Error.Class (try)
-import Control.Monad.Except (ExceptT(..), runExceptT)
 import Data.Array (all)
 import Data.Either (Either(..))
 import Data.Maybe (Maybe(..), isJust)
 import Data.Traversable (sequence)
 import Effect (Effect)
-import Effect.Aff (Aff, attempt, launchAff_)
 import Effect.Class (liftEffect)
 import Partial.Unsafe (unsafeCrashWith)
-import Type.Alias ( AffE)
 
 rightToMaybe :: forall a b. Either a b -> Maybe b
 rightToMaybe (Left _) = Nothing

@@ -6,7 +6,6 @@ import Control.Monad.Free (Free)
 import Data.Date (Date, Month(..), exactDate)
 import Data.Enum (toEnum)
 import Forceable (frc)
-import Railroad (unsafeJust)
 import Test.Unit (suite, test, TestF)
 import Test.Unit.Assert as Assert
 import Type.YMD (YMD(..), ymd)

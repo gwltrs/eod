@@ -16,8 +16,8 @@ import Effect.Aff (Aff, Error, launchAff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
-import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE, log', analyzeHistory, analyzeHistories)
-import Railroad (fuse, launchAffE, launchAffE)
+import IO (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE, analyzeHistory, analyzeHistories)
+import Railroad (fuse)
 import Type.Alias (RMultiple)
 import Type.Indicator (Indicator, last)
 import Indicators (convex, at, fibChunks, bullishReverse)
@@ -31,6 +31,7 @@ import Type.Evaluator (Evaluator(..))
 import Type.Purchase (Purchase, mkPurchase)
 import SystemQuality (systemQuality, SQN)
 import Data.String.Unsafe (charAt)
+import Type.AffE as AE
 
 fromDate :: YMD
 fromDate = frc $ ymd 2022 1 1
@@ -62,7 +63,7 @@ main =
   --pure unit
   --launchAffE $ findToday fromDate toDate (isJust <$> indicator)
   --launchAffE $ findHistory "atos" indicator
-  analyzeHistories (\t -> charAt 0 t == 'Z') sqnAnalysis
+  analyzeHistories (const true) sqnAnalysis
     <#> (\sqn -> "System quality number: " <> show sqn)
-    >>= log'
-    # launchAffE
+    >>= (AE.liftEffect <<< log)
+    # AE.launch

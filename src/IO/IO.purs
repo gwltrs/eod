@@ -17,14 +17,14 @@ import Data.Slice (Slice, shead, slast, slen, slice, stail, stake)
 import Data.Traversable (sequence)
 import Data.Tuple (Tuple(..), fst, snd)
 import Effect (Effect)
-import Effect.Aff (Aff, Milliseconds(..), delay, error)
+import Effect.Aff (Aff, Milliseconds(..), error)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
 import Forceable (frc)
-import IO.Atom (getAPIKey, getURL)
+import IO.Atom (getTextFromURL)
 import Prim.Boolean (True)
-import Railroad (fuse, liftEffectE, toAffE, toRight)
-import Type.Alias (AffE, Ticker)
+import Railroad (fuse, toRight)
+import Type.Alias (Ticker)
 import Type.Analysis (Analysis(..))
 import Type.JSON.BulkDay (BulkDay(..), bulkDaysFromJSON, isOptimalBulkDay)
 import Type.JSON.EODDay (EODDay, eodDaysFromJSON)
@@ -39,31 +39,35 @@ import Type.Evaluator (Evaluator(..), evaluate, evaluate', minEvalInputLength)
 import Type.Analysis (Analysis(..), minAnalysisInputLength)
 import Data.Foldable as DF
 import Debug (spy)
-
-getToday :: AffE YMD
-getToday = pure $ frc $ ymd 2023 4 5
+import Effect.Now (nowDate)
+import Effects (getToday)
+import Affs (delaySeconds)
+import Type.AffE (AffE)
+import Type.AffE as AE
+import EffectEs (getAPIKey)
+import Type.AppError (AppError(..))
 
 getBulkDays :: YMD -> AffE (Array Day)
 getBulkDays date = do
-  key <- liftEffectE getAPIKey
-  res <- getURL $ bulkURL key date
-  except $ toRight (error "Failed to parse bulk days JSON") $ fromBulkDay <<$>> sortWith _.code <$> filter isOptimalBulkDay <$> bulkDaysFromJSON res
+  key <- AE.liftEffectE getAPIKey
+  res <- getTextFromURL $ bulkURL key date
+  AE.liftMaybe JSONParseError $ fromBulkDay <<$>> sortWith _.code <$> filter isOptimalBulkDay <$> bulkDaysFromJSON res
 
 getTickers :: YMD -> AffE (Array Ticker)
 getTickers date = ticker <<$>> getBulkDays date
 
 getEODDays :: YMD -> Ticker -> AffE (Array Day)
 getEODDays date sym = do
-  key <- liftEffectE getAPIKey
-  res <- getURL $ eodURL key date sym
-  except $ toRight (error "Failed to parse eod days JSON") $ (fromEODDay sym) <<$>> eodDaysFromJSON res
+  key <- AE.liftEffectE getAPIKey
+  res <- getTextFromURL $ eodURL key date sym
+  AE.liftMaybe JSONParseError $ (fromEODDay sym) <<$>> eodDaysFromJSON res
 
 getLiveDay :: Ticker -> AffE Day
 getLiveDay sym = do
-  today :: YMD <- getToday
-  key <- liftEffectE getAPIKey
-  res <- getURL $ liveURL key sym
-  except $ toRight (error "Failed to parse live day JSON") $ (fromLiveDay sym today) <$> liveDayFromJSON res
+  today :: YMD <- liftEffect getToday
+  key <- AE.liftEffectE getAPIKey
+  res <- getTextFromURL $ liveURL key sym
+  AE.liftMaybe JSONParseError $ (fromLiveDay sym today) <$> liveDayFromJSON res
 
 getEODDaysAndLiveDay :: YMD -> Ticker -> AffE (Array Day)
 getEODDaysAndLiveDay date sym = do
@@ -79,12 +83,6 @@ logAffE :: forall a. Show a => AffE a -> AffE a
 logAffE a = 
   let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
   in logged *> a
-
-delayE :: Number -> AffE Unit
-delayE seconds = ExceptT (Right <$> (delay $ Milliseconds $ seconds * 1000.0))
-
-log' :: String -> AffE Unit
-log' = log >>> toAffE
 
 processHistory :: forall a b c. Ticker -> Analysis a b c -> AffE (Array b)
 processHistory ticker analysis = 
@@ -120,9 +118,7 @@ findHistory ticker indicator = do
   slices' (minIndInputLength indicator) days
     # filterMap (\s -> 
       let
-        ind :: Maybe a
-        ind = join $ indicate indicator s-- $ map (fromEODDay ticker) s
-        date_ :: String
+        ind = join $ indicate indicator s
         date_ = show $ date $ frc $ slast s
       in
         ind <#> (\i -> Tuple i date_))
@@ -139,20 +135,20 @@ findToday fromDate toDate isGoodPick =
     traverseStocks remaining matches = 
       if slen remaining == 0 then pure matches
       else do
-        delayE 0.1
+        AE.liftAff $ delaySeconds 0.1
         days <- getEODDaysAndLiveDay fromDate (frc remaining)
           `catchError` (const $ pure [])
         case indicate' isGoodPick days of 
           Nothing -> do
-            log' "network error/insufficient number of days"
+            AE.liftEffect $ log "network error/insufficient number of days"
             traverseStocks (stail' remaining) matches
           (Just true) -> do
-            log' $ frc remaining
-            log' $ show $ slastN' 3 days
+            AE.liftEffect $ log $ frc remaining
+            AE.liftEffect $ log $ show $ slastN' 3 days
             traverseStocks (stail' remaining) (snoc matches (frc remaining))
           (Just false) -> do
             traverseStocks (stail' remaining) matches
   in do
     syms <- getBulkDays toDate <<#>> ticker
     picks <- traverseStocks (slice syms) []
-    toAffE $ log $ show picks
+    AE.liftEffect $ log $ show picks

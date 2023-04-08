@@ -8,23 +8,17 @@ import Effect.Aff (Aff, attempt, error)
 import Fetch (fetch)
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readTextFile, writeTextFile)
-import Node.Process (lookupEnv)
-import Railroad (unsafeJust, toRight, tryAff, tryEffect)
-import Type.Alias (AffE, URL, EffectE)
+import Railroad (toRight)
+import Type.Alias (URL)
+import Type.AffE (AffE)
+import Type.AffE as AE
+import Type.AppError (AppError(..))
 
-getURL :: URL -> AffE String
-getURL url = ExceptT $ attempt (fetch url {} >>= (\r -> r.text))
+getTextFromURL :: URL -> AffE String
+getTextFromURL url = AE.tryAff NetworkError (fetch url {} >>= (\r -> r.text))-- ExceptT $ attempt (fetch url {} >>= (\r -> r.text))
 
-getAPIKey :: EffectE String
-getAPIKey = 
-  let 
-    envVarName = "EODHD_API_KEY"
-    err = error ("Didn't find environment variable: " <> envVarName)
-  in 
-    lookupEnv envVarName <#> toRight err # ExceptT
+readTextFromFile :: String -> AffE String
+readTextFromFile = AE.tryAff FileError <<< readTextFile UTF8
 
-readFileText :: String -> AffE String
-readFileText = readTextFile UTF8 >>> tryAff
-
-writeFileText :: String -> String -> AffE Unit
-writeFileText path text = writeTextFile UTF8 path text # tryAff
+writeTextToFile :: String -> String -> AffE Unit
+writeTextToFile path text = AE.tryAff FileError $ writeTextFile UTF8 path text

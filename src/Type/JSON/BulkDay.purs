@@ -8,12 +8,11 @@ import Data.Maybe (Maybe)
 import Data.String (length)
 import Data.Traversable (traverse)
 import Foreign.Object (lookup)
-import Railroad (rightToMaybe)
 import Test.QuickCheck (class Arbitrary, arbitrary)
 import Type.JSON.EODDay (EODDay)
 import Type.YMD (YMD(..))
 import Type.YMD as Y
-import Utils (allTrue, isAlphaStr, toJSONArray)
+import Utils (allTrue, isAlphaStr, toJSONArray, right)
 import Type.Alias (Ticker)
 
 type BulkDay = 
@@ -52,7 +51,7 @@ bulkDayToJSON day =
   ",\"volume\":" <> show day.volume <> "}"
 
 bulkDaysFromJSON :: String -> Maybe (Array BulkDay)
-bulkDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= traverse bulkDayFromJSON
+bulkDaysFromJSON json = jsonParser json # right >>= toArray >>= traverse bulkDayFromJSON
 
 bulkDaysToJSON :: Array BulkDay -> String
 bulkDaysToJSON = toJSONArray bulkDayToJSON

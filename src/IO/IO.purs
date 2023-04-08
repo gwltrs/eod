@@ -8,7 +8,7 @@ import Data.Array (fold, filter, snoc, sortWith, take, reverse)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
 import Data.DateTime.Instant (fromDate)
-import Data.Either (Either(..))
+import Data.Either (Either(..), either)
 import Data.Functor (voidLeft, voidRight)
 import Data.JSDate (toDate)
 import Data.Maybe (Maybe(..), fromMaybe, isJust)
@@ -23,7 +23,6 @@ import Effect.Console (log)
 import Forceable (frc)
 import IO.Atom (getTextFromURL)
 import Prim.Boolean (True)
-import Railroad (fuse, toRight)
 import Type.Alias (Ticker)
 import Type.Analysis (Analysis(..))
 import Type.JSON.BulkDay (BulkDay(..), bulkDaysFromJSON, isOptimalBulkDay)
@@ -81,7 +80,7 @@ getEODDaysAndLiveDay date sym = do
 
 logAffE :: forall a. Show a => AffE a -> AffE a
 logAffE a = 
-  let logged = (runExceptT a) <#> bimap show show <#> fuse >>= (log >>> liftEffect) <#> Right # ExceptT
+  let logged = (runExceptT a) <#> either show show >>= (log >>> liftEffect) <#> Right # ExceptT
   in logged *> a
 
 processHistory :: forall a b c. Ticker -> Analysis a b c -> AffE (Array b)

@@ -8,7 +8,6 @@ import Effect.Aff (Aff, attempt, error)
 import Fetch (fetch)
 import Node.Encoding (Encoding(..))
 import Node.FS.Aff (readTextFile, writeTextFile)
-import Railroad (toRight)
 import Type.Alias (URL)
 import Type.AffE (AffE)
 import Type.AffE as AE

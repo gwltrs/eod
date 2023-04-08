@@ -7,10 +7,9 @@ import Data.Argonaut.Parser (jsonParser)
 import Data.Maybe (Maybe)
 import Data.Traversable (traverse)
 import Foreign.Object (lookup)
-import Railroad (rightToMaybe)
 import Type.YMD (YMD(..))
 import Type.YMD as Y
-import Utils (toJSONArray)
+import Utils (toJSONArray, right)
 import Type.Alias (Ticker)
 
 type EODDay = 
@@ -37,7 +36,7 @@ eodDayFromJSON json = do
   pure $ eodDay d o h l c v
 
 eodDaysFromJSON :: String -> Maybe (Array EODDay)
-eodDaysFromJSON json = jsonParser json # rightToMaybe >>= toArray >>= traverse eodDayFromJSON
+eodDaysFromJSON json = jsonParser json # right >>= toArray >>= traverse eodDayFromJSON
 
 eodDayToJSON :: EODDay -> String
 eodDayToJSON day = 

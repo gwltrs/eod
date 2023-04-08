@@ -17,6 +17,7 @@ import Forceable (frc)
 import Partial.Unsafe (unsafeCrashWith)
 import Control.Apply (lift2)
 import Data.Traversable
+import Data.Either (Either(..))
 
 allTrue :: Array Boolean -> Boolean
 allTrue = foldr (&&) true
@@ -76,3 +77,7 @@ qualify :: forall t m a. Traversable t => Applicative m => t (m Boolean) -> m a 
 qualify bools value =
   let f b v = if foldr (&&) true b then Just v else Nothing
   in lift2 f (sequence bools) value
+
+right :: forall l r. Either l r -> Maybe r 
+right (Left _) = Nothing
+right (Right r) = Just r

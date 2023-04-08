@@ -4,9 +4,9 @@ import Prelude
 
 import Data.Maybe (Maybe(..))
 import Data.Argonaut.Parser (jsonParser)
-import Railroad (rightToMaybe)
 import Data.Argonaut.Core (Json, toArray, toNumber, toObject, toString)
 import Foreign.Object (lookup)
+import Utils (right)
 
 type LiveDay = 
   { open :: Number
@@ -18,7 +18,7 @@ type LiveDay =
   
 liveDayFromJSON :: String -> Maybe LiveDay
 liveDayFromJSON json = do
-  obj <- jsonParser json # rightToMaybe >>= toObject
+  obj <- jsonParser json # right >>= toObject
   o <- lookup "open" obj >>= toNumber
   h <- lookup "high" obj >>= toNumber
   l <- lookup "low" obj >>= toNumber

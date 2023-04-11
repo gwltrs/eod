@@ -16,17 +16,43 @@ import Data.Number (infinity)
 import Data.Slice (Slice, sat, slen)
 import Forceable (frc)
 import Type.Indicator (Indicator, last)
-import Type.Day (Day, avg, fourPrice)
+import Type.Day (Day(..), avg, fourPrice)
 import Data.Newtype (unwrap)
-import Utils (undefined)
+import Utils (undefined, slices)
 import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (Tuple3, tuple3, (/\))
 import Data.Unfoldable (unfoldr)
+import Partial.Unsafe (unsafeCrashWith)
+import Data.Foldable (foldr, fold)
+import Data.Ord (abs)
 
 at :: Int -> Indicator Day
 at i = 
   let i' = max 0 i
   in frc <$> last (1 + i')
+
+atr :: Slice Day -> Number
+atr days =
+  if rLen days < 2 then 
+    unsafeCrashWith "average true range calculation requires at least 2 days"
+  else
+    let 
+      trueRange :: Day -> Day -> Number
+      trueRange (Day a) (Day b) = [b.high - b.low, b.high - a.close, b.low - a.close]
+        # map abs
+        # foldr max 0.0
+    in 
+      slices 2 days
+        <#> (\a -> trueRange (rAt 0 a) (rAt 1 a))
+        # foldr (+) 0.0
+        # (_ / (toNumber $ rLen days))
+  
+bullishReverse :: forall r o. RandomAccess r => Ord o => r o -> Boolean
+bullishReverse r = a >= b && b < c
+  where 
+    a = rAt ((rLen r) - 3) r
+    b = rAt ((rLen r) - 2) r
+    c = rAt ((rLen r) - 1) r
 
 convex :: forall r. RandomAccess r => r Number -> Int
 convex ns =
@@ -56,9 +82,3 @@ fibChunks r =
   in
     mapRange <$> ranges
 
-bullishReverse :: forall r o. RandomAccess r => Ord o => r o -> Boolean
-bullishReverse r = a >= b && b < c
-  where 
-    a = rAt ((rLen r) - 3) r
-    b = rAt ((rLen r) - 2) r
-    c = rAt ((rLen r) - 1) r

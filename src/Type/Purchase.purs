@@ -1,4 +1,4 @@
-module Type.Purchase (Purchase, mkPurchase, buyPrice, stopPrice) where
+module Type.Purchase (Purchase, mkPurchase, buyPrice, stopPrice, priority) where
 
 import Prelude
 import Data.Maybe (Maybe(..))
@@ -24,3 +24,5 @@ stopPrice (Purchase obj) = obj.stopPrice
 priority :: Purchase -> Number
 priority (Purchase obj) = obj.priority
 
+instance showPurchase :: Show Purchase where
+  show (Purchase obj) = show obj

@@ -34,6 +34,8 @@ import Control.Monad.Except (ExceptT(..), catchError, except, runExceptT)
 import Effect.Console (log)
 import Data.Traversable (sequence)
 import Debug (spy)
+import Class.RandomAccess (rLen)
+import Type.Purchase (Purchase(..), priority)
 
 readTextFromFile :: String -> AffE String
 readTextFromFile = AE.tryAff FileError <<< readTextFile UTF8
@@ -106,7 +108,7 @@ analyzeHistories tickerFilter analysis =
     processed :: Array (Array b) <- sequence $ (\t -> processHistory t analysis) <$> (spy "tickers" tickers)
     pure $ finally $ join processed
 
-findHistory :: forall a. Ord a => Show a => Ticker -> Indicator (Maybe a) -> AffE Unit
+findHistory :: forall a. Ticker -> Indicator (Maybe Purchase) -> AffE Unit
 findHistory ticker indicator = do
   days :: Array Day <- getEODDays (frc $ ymd 1900 1 1) ticker
   slices' (minIndInputLength indicator) days
@@ -116,9 +118,9 @@ findHistory ticker indicator = do
         date_ = show $ date $ frc $ slast s
       in
         ind <#> (\i -> Tuple i date_))
-    # sortWith fst
+    # sortWith (priority <<< fst)
     # reverse
-    # map (show >>> log)
+    # map (log <<< show)
     # fold
     # liftEffect
 
@@ -138,7 +140,7 @@ findToday fromDate toDate isGoodPick =
             traverseStocks (stail' remaining) matches
           (Just true) -> do
             AE.liftEffect $ log $ frc remaining
-            AE.liftEffect $ log $ show $ slastN' 3 days
+            --AE.liftEffect $ log $ show $ slastN' 3 days
             traverseStocks (stail' remaining) (snoc matches (frc remaining))
           (Just false) -> do
             traverseStocks (stail' remaining) matches

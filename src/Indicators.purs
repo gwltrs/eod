@@ -1,10 +1,4 @@
-module Indicators
-  ( at
-  , bullishReverse
-  , convex
-  , fibChunks
-  )
-  where
+module Indicators where
 
 import Prelude
 
@@ -24,7 +18,8 @@ import Data.Tuple.Nested (Tuple3, tuple3, (/\))
 import Data.Unfoldable (unfoldr)
 import Partial.Unsafe (unsafeCrashWith)
 import Data.Foldable (foldr, fold)
-import Data.Ord (abs)
+import Data.Ord (abs, between)
+import Debug (spy)
 
 at :: Int -> Indicator Day
 at i = 
@@ -82,3 +77,27 @@ fibChunks r =
   in
     mapRange <$> ranges
 
+isInvertedCricket :: Day -> Boolean
+isInvertedCricket (Day d) = 
+  let
+    center = (d.high + d.low) / 2.0
+    magnitude = d.high - d.low
+    fivePercent = magnitude * 0.05
+    bodyTop = max d.open d.close
+    bodyBottom = min d.open d.close
+    topIsHalfway = between
+      (center - fivePercent) 
+      (center + fivePercent) 
+      bodyTop
+    bottomIsLow = between
+      d.low
+      (d.low + fivePercent)
+      bodyBottom
+  in
+    topIsHalfway
+
+isGreen :: Day -> Boolean
+isGreen (Day d) = d.close > d.open
+
+isUp :: Day -> Day -> Boolean
+isUp (Day a) (Day b) = b.close > a.close

@@ -3,6 +3,7 @@ module Type.Indicator
   , indicate
   , indicate'
   , last
+  , lastShifted
   , minIndInputLength
   )
   where
@@ -19,6 +20,11 @@ data Indicator a = Indicator Int (Slice Day -> a)
 
 last :: Int -> Indicator (Slice Day)
 last n = Indicator n (slastN n)
+
+lastShifted :: Int -> Int -> Indicator (Slice Day)
+lastShifted n shiftBy = 
+  let total = n + shiftBy
+  in Indicator total (stake n <<< slastN total)
 
 indicate :: forall a. Indicator a -> Slice Day -> Maybe a
 indicate (Indicator n f) s = if slen s >= n then Just $ f s else Nothing

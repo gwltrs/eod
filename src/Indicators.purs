@@ -77,8 +77,11 @@ fibChunks r =
   in
     mapRange <$> ranges
 
-isInvertedCricket :: Day -> Boolean
-isInvertedCricket (Day d) = 
+green :: Day -> Boolean
+green (Day d) = d.close > d.open
+
+invertedCricket :: Day -> Boolean
+invertedCricket (Day d) = 
   let
     center = (d.high + d.low) / 2.0
     magnitude = d.high - d.low
@@ -96,8 +99,5 @@ isInvertedCricket (Day d) =
   in
     topIsHalfway
 
-isGreen :: Day -> Boolean
-isGreen (Day d) = d.close > d.open
-
-isUp :: Day -> Day -> Boolean
-isUp (Day a) (Day b) = b.close > a.close
+up :: Day -> Day -> Boolean
+up (Day a) (Day b) = b.close > a.close

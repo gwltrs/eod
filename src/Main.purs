@@ -37,7 +37,7 @@ fromDate :: YMD
 fromDate = frc $ ymd 2022 1 1
 
 toDate :: YMD
-toDate = frc $ ymd 2023 4 13
+toDate = frc $ ymd 2023 4 17
 
 indicator :: Indicator (Maybe Purchase)
 indicator = vcp

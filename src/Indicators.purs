@@ -49,6 +49,9 @@ bullishReverse r = a >= b && b < c
     b = rAt ((rLen r) - 2) r
     c = rAt ((rLen r) - 1) r
 
+bullishTriangle :: Day -> Day -> Day -> Boolean
+bullishTriangle = undefined
+
 convex :: forall r. RandomAccess r => r Number -> Int
 convex ns =
   let 
@@ -98,6 +101,12 @@ invertedCricket (Day d) =
       bodyBottom
   in
     topIsHalfway
+
+inside :: Day -> Day -> Boolean
+inside (Day a) (Day b) = (b.high < a.high) && (b.low > a.low)
+
+outside :: Day -> Day -> Boolean
+outside (Day a) (Day b) = (b.high > a.high) && (b.low < a.low) 
 
 up :: Day -> Day -> Boolean
 up (Day a) (Day b) = b.close > a.close

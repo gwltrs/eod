@@ -51,6 +51,6 @@ sqnAnalysis = Analysis indicator evaluator systemQuality
 main ∷ Effect Unit
 main = 
   --pure unit
-  AE.launch (liftEffect <<< log <<< show) $ findToday fromDate toDate (isJust <$> indicator)
-  --AE.launch (liftEffect <<< log <<< show) $ findHistory "spy" indicator
+  --AE.launch (liftEffect <<< log <<< show) $ findToday fromDate toDate (isJust <$> indicator)
+  AE.launch (liftEffect <<< log <<< show) $ findHistory "spy" indicator
   --analyzeHistories (const true) sqnAnalysis <#> (\sqn -> "System quality number: " <> show sqn) >>= (AE.liftEffect <<< log) # AE.launch (liftEffect <<< log <<< show)

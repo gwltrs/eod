@@ -31,7 +31,7 @@ import Type.Purchase (Purchase, mkPurchase)
 import SystemQuality (systemQuality, SQN)
 import Data.String.Unsafe (charAt)
 import Type.AffE as AE
-import Private (vcp)
+import Private (vcp, trendAndVol, insideDays_)
 
 fromDate :: YMD
 fromDate = frc $ ymd 2022 1 1
@@ -40,7 +40,7 @@ toDate :: YMD
 toDate = frc $ ymd 2023 4 17
 
 indicator :: Indicator (Maybe Purchase)
-indicator = vcp
+indicator = insideDays_
   
 evaluator :: Evaluator (Purchase -> Number)
 evaluator = maxPreviousLow 10
@@ -50,7 +50,6 @@ sqnAnalysis = Analysis indicator evaluator systemQuality
 
 main ∷ Effect Unit
 main = 
-  --pure unit
   --AE.launch (liftEffect <<< log <<< show) $ findToday fromDate toDate (isJust <$> indicator)
-  AE.launch (liftEffect <<< log <<< show) $ findHistory "spy" indicator
+  AE.launch (liftEffect <<< log <<< show) $ findHistory "spxu" indicator
   --analyzeHistories (const true) sqnAnalysis <#> (\sqn -> "System quality number: " <> show sqn) >>= (AE.liftEffect <<< log) # AE.launch (liftEffect <<< log <<< show)

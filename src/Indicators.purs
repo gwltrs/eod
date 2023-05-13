@@ -7,7 +7,7 @@ import Data.Foldable (sum)
 import Data.Int (toNumber)
 import Data.Maybe (Maybe(..))
 import Data.Number (infinity)
-import Data.Slice (Slice, sat, slen)
+import Data.Slice (Slice, sat, slen, sskip, shead, sinit, stail, slast)
 import Forceable (frc)
 import Type.Indicator (Indicator, last)
 import Type.Day (Day(..), avg, fourPrice)
@@ -17,7 +17,7 @@ import Data.Tuple (Tuple(..))
 import Data.Tuple.Nested (Tuple3, tuple3, (/\))
 import Data.Unfoldable (unfoldr)
 import Partial.Unsafe (unsafeCrashWith)
-import Data.Foldable (foldr, fold)
+import Data.Foldable (foldr, fold, foldl)
 import Data.Ord (abs, between)
 import Debug (spy)
 
@@ -41,6 +41,12 @@ atr days =
         <#> (\a -> trueRange (rAt 0 a) (rAt 1 a))
         # foldr (+) 0.0
         # (_ / (toNumber $ rLen days))
+
+avg :: Slice Number -> Number
+avg xs = 
+  if rLen xs == 0
+  then 0.0
+  else foldr (+) 0.0 xs / (toNumber $ rLen xs)
   
 bullishReverse :: forall r o. RandomAccess r => Ord o => r o -> Boolean
 bullishReverse r = a >= b && b < c
@@ -48,9 +54,6 @@ bullishReverse r = a >= b && b < c
     a = rAt ((rLen r) - 3) r
     b = rAt ((rLen r) - 2) r
     c = rAt ((rLen r) - 1) r
-
-bullishTriangle :: Day -> Day -> Day -> Boolean
-bullishTriangle = undefined
 
 convex :: forall r. RandomAccess r => r Number -> Int
 convex ns =
@@ -82,6 +85,24 @@ fibChunks r =
 
 green :: Day -> Boolean
 green (Day d) = d.close > d.open
+
+insideDays :: Int -> Slice Day -> Boolean
+insideDays minInnerLength days = 
+  if rLen days < (2 + minInnerLength) then
+    unsafeCrashWith "inside days calculation requires at least 3 days"
+  else
+    let
+      firstDay = frc $ shead days
+      middleDays = frc $ sinit $ frc $ stail days
+      middleDay = foldr (<>) (frc $ shead middleDays) (frc $ stail middleDays)
+      isInside = inside firstDay middleDay
+    in
+      if isInside
+      then true
+      else 
+        if rLen days >= (3 + minInnerLength)
+        then insideDays minInnerLength (frc $ stail days)
+        else false
 
 invertedCricket :: Day -> Boolean
 invertedCricket (Day d) = 

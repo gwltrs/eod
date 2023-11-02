@@ -20,7 +20,7 @@ import Concur.React.DOM as D
 import Concur.React.Props as P
 import Concur.React.Run (runWidgetInDom)
 import Control.Apply ((*>), lift2)
-import Control.Monad.Except (ExceptT(..), runExceptT)
+import Control.Monad.Except (ExceptT(..), lift, runExceptT)
 import Data.Array (length)
 import Data.Bifunctor (bimap)
 import Data.Date (Date)
@@ -33,6 +33,7 @@ import Effect (Effect)
 import Effect.Aff (Aff, Error, launchAff, launchAff_)
 import Effect.Class (liftEffect)
 import Effect.Console (log)
+import Effects (getToday)
 import Evaluators (maxPreviousLow)
 import Forceable (frc)
 import Indicators (convex, at, fibChunks, bullishReverse)
@@ -72,10 +73,16 @@ counterWidget count = do
   liftEffect (log ("COUNT IS NOW: " <> show n))
   counterWidget n
 
+fetchWidget :: forall a. Widget HTML a
+fetchWidget = do
+  today <- liftEffect getToday
+  D.text $ show today
+
 main ∷ Effect Unit
 main = 
   -- log "hello world"
-  runWidgetInDom "root" (counterWidget 0)
+  runWidgetInDom "root" fetchWidget
+  -- runWidgetInDom "root" (counterWidget 0)
   --AE.launch (liftEffect <<< log <<< show) $ findToday fromDate toDate (isJust <$> indicator)
   -- AE.launch (liftEffect <<< log <<< show) $ findHistory "spxu" indicator
   --analyzeHistories (const true) sqnAnalysis <#> (\sqn -> "System quality number: " <> show sqn) >>= (AE.liftEffect <<< log) # AE.launch (liftEffect <<< log <<< show)

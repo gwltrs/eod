@@ -1,0 +1,45 @@
+package:
+  dependencies:
+    - aff
+    - argonaut-core
+    - arrays
+    - bifunctors
+    - concur-core
+    - concur-react
+    - console
+    - control
+    - datetime
+    - debug
+    - effect
+    - either
+    - enums
+    - exceptions
+    - fetch
+    - foldable-traversable
+    - foreign-object
+    - free
+    - integers
+    - maybe
+    - newtype
+    - node-buffer
+    - node-fs
+    - node-process
+    - now
+    - numbers
+    - partial
+    - prelude
+    - quickcheck
+    - strings
+    - test-unit
+    - transformers
+    - tuples
+    - unfoldable
+    - unicode
+  name: eod
+  test:
+    dependencies: []
+    main: Test.Main
+workspace:
+  extra_packages: {}
+  package_set:
+    registry: 43.5.1

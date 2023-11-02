@@ -5,6 +5,7 @@ module Main
   , indicator
   , sqnAnalysis
   , toDate
+  , main
   )
   where
 
@@ -13,6 +14,7 @@ import Prelude
 
 import AffEs (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE, analyzeHistory, analyzeHistories)
 import Concur.Core (Widget)
+import Concur.Core.Gen (runWidget)
 import Concur.React (HTML)
 import Concur.React.DOM as D
 import Concur.React.Props as P
@@ -71,7 +73,9 @@ counterWidget count = do
   counterWidget n
 
 main ∷ Effect Unit
-main = runWidgetInDom "root" (counterWidget 0)
+main = 
+  -- log "hello world"
+  runWidgetInDom "root" (counterWidget 0)
   --AE.launch (liftEffect <<< log <<< show) $ findToday fromDate toDate (isJust <$> indicator)
   -- AE.launch (liftEffect <<< log <<< show) $ findHistory "spxu" indicator
   --analyzeHistories (const true) sqnAnalysis <#> (\sqn -> "System quality number: " <> show sqn) >>= (AE.liftEffect <<< log) # AE.launch (liftEffect <<< log <<< show)

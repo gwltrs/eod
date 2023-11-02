@@ -1,9 +1,22 @@
-module Main where
+module Main
+  ( counterWidget
+  , evaluator
+  , fromDate
+  , indicator
+  , sqnAnalysis
+  , toDate
+  )
+  where
 
 import NestedApplicative
 import Prelude
 
 import AffEs (findHistory, findToday, getBulkDays, getEODDays, getLiveDay, logAffE, analyzeHistory, analyzeHistories)
+import Concur.Core (Widget)
+import Concur.React (HTML)
+import Concur.React.DOM as D
+import Concur.React.Props as P
+import Concur.React.Run (runWidgetInDom)
 import Control.Apply ((*>), lift2)
 import Control.Monad.Except (ExceptT(..), runExceptT)
 import Data.Array (length)
@@ -47,9 +60,18 @@ evaluator = maxPreviousLow 10
 sqnAnalysis :: Analysis Purchase RMultiple SQN
 sqnAnalysis = Analysis indicator evaluator systemQuality
 
+counterWidget :: forall a. Int -> Widget HTML a
+counterWidget count = do
+  n <- D.div'
+        [ D.p' [D.text ("State: " <> show count)]
+        , D.button [P.onClick] [D.text "Increment"] $> count+1
+        , D.button [P.onClick] [D.text "Decrement"] $> count-1
+        ]
+  liftEffect (log ("COUNT IS NOW: " <> show n))
+  counterWidget n
+
 main ∷ Effect Unit
-main =
-  log "implement ui"
+main = runWidgetInDom "root" (counterWidget 0)
   --AE.launch (liftEffect <<< log <<< show) $ findToday fromDate toDate (isJust <$> indicator)
   -- AE.launch (liftEffect <<< log <<< show) $ findHistory "spxu" indicator
   --analyzeHistories (const true) sqnAnalysis <#> (\sqn -> "System quality number: " <> show sqn) >>= (AE.liftEffect <<< log) # AE.launch (liftEffect <<< log <<< show)

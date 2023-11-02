@@ -16,6 +16,8 @@ to generate this file without the comments in this block.
   , "argonaut-core"
   , "arrays"
   , "bifunctors"
+  , "concur-core"
+  , "concur-react"
   , "console"
   , "control"
   , "datetime"
